@@ -64,4 +64,8 @@ public class UserState extends State<User> {
         .toList();
   }
 
+  public Optional<User> getUserByID (int id){
+    return getModelByID(id);
+  }
+
 }

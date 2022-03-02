@@ -1,10 +1,13 @@
 package com.weareadaptive.auction.service;
 
+import com.weareadaptive.auction.exception.ModelNotFoundException;
+import com.weareadaptive.auction.model.BusinessException;
 import com.weareadaptive.auction.model.User;
 import com.weareadaptive.auction.model.UserState;
 import org.springframework.stereotype.Service;
 
 import java.net.PortUnreachableException;
+import java.util.List;
 
 @Service
 public class UserService {
@@ -20,7 +23,7 @@ public class UserService {
                      String organisation) {
 
     if(userState.getByUsername(username).isPresent()){
-      throw new RuntimeException("username already exist");
+      throw new BusinessException("username already exist");
     }
 
     var userID = userState.nextId();
@@ -31,8 +34,18 @@ public class UserService {
 //    throw new UnsupportedOperationException();
   }
 
-  public UserState getUserState(){
-    return this.userState;
+  public User getUserByID(int id){
+    var userOptional = userState.getUserByID(id);
+    if(userOptional.isPresent()){
+      return userOptional.get();
+    } else {
+      throw new ModelNotFoundException();
+    }
   }
+
+  public List<User> getAllUsers(){
+    return userState.stream().toList();
+  }
+
 
 }

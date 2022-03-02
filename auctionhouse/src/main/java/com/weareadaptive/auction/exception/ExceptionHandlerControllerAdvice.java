@@ -1,6 +1,7 @@
 package com.weareadaptive.auction.exception;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON;
 
 import com.weareadaptive.auction.model.BusinessException;
@@ -40,4 +41,19 @@ public class ExceptionHandlerControllerAdvice {
         headers,
         BAD_REQUEST);
   }
+
+  @ExceptionHandler(ModelNotFoundException.class)
+  public ResponseEntity<Object> handldeModelNotFoundException(ModelNotFoundException exception){
+    var headers = new HttpHeaders();
+    headers.setContentType(APPLICATION_PROBLEM_JSON);
+    return new ResponseEntity<>(
+            new Problem(
+                    NOT_FOUND.value(),
+                    NOT_FOUND.name(),
+                    exception.getMessage()),
+            headers,
+            NOT_FOUND
+            );
+  }
+
 }

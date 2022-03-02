@@ -1,6 +1,8 @@
 package com.weareadaptive.auction.controller.dto;
 
 
+import com.weareadaptive.auction.model.User;
+
 public record UserResponse(
         int id,
         String username,
@@ -8,5 +10,10 @@ public record UserResponse(
         String lastName,
         String organisation
 ) {
+
+    public UserResponse(User user){
+        this(user.getId(), user.getUsername(), user.getFirstName(), user.getLastName(), user.getOrganisation());
+    }
+
 }
 
