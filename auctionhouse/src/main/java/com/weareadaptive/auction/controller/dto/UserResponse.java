@@ -11,6 +11,7 @@ public record UserResponse(
         String organisation
 ) {
 
+    // may use a mapper class
     public UserResponse(User user){
         this(user.getId(), user.getUsername(), user.getFirstName(), user.getLastName(), user.getOrganisation());
     }

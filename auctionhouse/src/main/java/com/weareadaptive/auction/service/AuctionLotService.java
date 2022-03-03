@@ -16,4 +16,6 @@ public class AuctionLotService {
     this.auctionState = auctionState;
     this.userState = userState;
   }
+
+
 }

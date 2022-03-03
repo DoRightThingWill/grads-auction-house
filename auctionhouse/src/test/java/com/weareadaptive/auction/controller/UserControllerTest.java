@@ -48,7 +48,6 @@ public class UserControllerTest {
   @DisplayName("create should return a bad request when the username is duplicated")
   @Test
   public void create_shouldReturnBadRequestIfUserExist() {
-    shouldReturnUserIfCreated();
     var createRequest = new CreateUserRequest(
         testData.user1().getUsername(),
         "dasfasdf",

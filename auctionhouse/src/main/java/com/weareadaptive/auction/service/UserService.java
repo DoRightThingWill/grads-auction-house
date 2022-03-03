@@ -35,12 +35,8 @@ public class UserService {
   }
 
   public User getUserByID(int id){
-    var userOptional = userState.getUserByID(id);
-    if(userOptional.isPresent()){
-      return userOptional.get();
-    } else {
-      throw new ModelNotFoundException();
-    }
+    return userState.getUserByID(id)
+            .orElseThrow(ModelNotFoundException::new);
   }
 
   public List<User> getAllUsers(){
