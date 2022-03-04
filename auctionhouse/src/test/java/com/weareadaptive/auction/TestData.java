@@ -24,6 +24,8 @@ public class TestData {
   private User user4;
 
   private AuctionLot auctionApple;
+  private AuctionLot auctionMSFT;
+  private AuctionLot auctionFB;
 
   public TestData(UserService userService, AuctionLotService auctionLotService) {
     this.userService = userService;
@@ -39,7 +41,8 @@ public class TestData {
     user4 = createRandomUser();
 
     auctionApple = createAuction(Stock.APPLE.symbol);
-
+    auctionMSFT = createAuction(Stock.MICROSOFT.symbol);
+    auctionFB = createAuction(Stock.META.symbol);
   }
 
   public User user1() {
@@ -77,13 +80,19 @@ public class TestData {
   public AuctionLot auctionApple(){
     return auctionApple;
   }
+  public AuctionLot auctionMSFT(){
+    return auctionMSFT;
+  }
+  public AuctionLot auctionFB(){
+    return auctionFB;
+  }
 
   public AuctionLot createAuction(String symbol){
     return auctionLotService.createAuction(
       user1.getUsername(),
-      symbol.toString(),
-      200,
-      2.23);
+      symbol,
+      faker.number().numberBetween(100, 200),
+      faker.number().randomDouble(2, 1,4));
   }
 
   public User createRandomUser() {

@@ -1,4 +1,5 @@
 package com.weareadaptive.auction.service;
+import com.weareadaptive.auction.exception.ModelNotFoundException;
 import com.weareadaptive.auction.model.AuctionLot;
 import com.weareadaptive.auction.model.AuctionState;
 import com.weareadaptive.auction.model.KeyAlreadyExistsException;
@@ -42,6 +43,15 @@ public class AuctionLotService {
 
     auctionState.add(createdAuction);
     return createdAuction;
+  }
+
+
+  public AuctionLot getAuctionByID(int id){
+    Optional<AuctionLot> auctionOptional = auctionState.getModelByID(id);
+    if(auctionOptional.isEmpty()){
+      throw new ModelNotFoundException();
+    }
+    return auctionOptional.get();
   }
 
 }

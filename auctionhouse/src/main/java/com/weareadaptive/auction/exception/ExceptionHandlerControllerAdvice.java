@@ -21,39 +21,28 @@ public class ExceptionHandlerControllerAdvice {
     headers.setContentType(APPLICATION_PROBLEM_JSON);
 
     var invalidFields = ex.getBindingResult().getFieldErrors().stream()
-        .map(error -> new InvalidField(error.getField(), error.getDefaultMessage()))
-        .toList();
+        .map(error -> new InvalidField(error.getField(), error.getDefaultMessage())).toList();
 
     return new ResponseEntity<>(new BadRequestInvalidFieldsProblem(invalidFields), headers,
         BAD_REQUEST);
   }
 
   @ExceptionHandler(KeyAlreadyExistsException.class)
-  public ResponseEntity<Object> handleNotFoundException(
-      KeyAlreadyExistsException ex) {
+  public ResponseEntity<Object> handleNotFoundException(KeyAlreadyExistsException ex) {
     var headers = new HttpHeaders();
     headers.setContentType(APPLICATION_PROBLEM_JSON);
     return new ResponseEntity<>(
-        new Problem(
-          BAD_REQUEST.value(),
-          BAD_REQUEST.name(),
-          ex.getMessage()),
-        headers,
+        new Problem(BAD_REQUEST.value(), BAD_REQUEST.name(), ex.getMessage()), headers,
         BAD_REQUEST);
   }
 
   @ExceptionHandler(ModelNotFoundException.class)
-  public ResponseEntity<Object> handldeModelNotFoundException(ModelNotFoundException exception){
+  public ResponseEntity<Object> handldeModelNotFoundException(ModelNotFoundException exception) {
     var headers = new HttpHeaders();
     headers.setContentType(APPLICATION_PROBLEM_JSON);
     return new ResponseEntity<>(
-            new Problem(
-                    NOT_FOUND.value(),
-                    NOT_FOUND.name(),
-                    exception.getMessage()),
-            headers,
-            NOT_FOUND
-            );
+        new Problem(NOT_FOUND.value(), NOT_FOUND.name(), exception.getMessage()), headers,
+        NOT_FOUND);
   }
 
 }

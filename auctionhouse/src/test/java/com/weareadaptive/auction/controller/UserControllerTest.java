@@ -56,17 +56,17 @@ public class UserControllerTest {
         testData.user1().getOrganisation());
 
     //@formatter:off
-        given()
-            .baseUri(uri)
-            .header(AUTHORIZATION, ADMIN_AUTH_TOKEN)
-            .contentType(ContentType.JSON)
-            .body(createRequest)
+    given()
+        .baseUri(uri)
+        .header(AUTHORIZATION, ADMIN_AUTH_TOKEN)
+        .contentType(ContentType.JSON)
+        .body(createRequest)
         .when()
-            .post("/users")
+        .post("/users")
         .then()
-            .statusCode(BAD_REQUEST.value())
-            .body("message", containsString("already exist"));
-        //@formatter:on
+        .statusCode(BAD_REQUEST.value())
+        .body("message", containsString("already exist"));
+    //@formatter:on
   }
 
   @DisplayName("getAll should return all users")
@@ -76,75 +76,75 @@ public class UserControllerTest {
     var find2 = format("find { it.id == %s }.", testData.user2().getId());
 
     //@formatter:off
-        given()
-            .baseUri(uri)
-            .header(AUTHORIZATION, ADMIN_AUTH_TOKEN)
+    given()
+        .baseUri(uri)
+        .header(AUTHORIZATION, ADMIN_AUTH_TOKEN)
         .when()
-            .get("/users")
+        .get("/users")
         .then()
-            .statusCode(HttpStatus.OK.value())
-            // Validate User1
-            .body(find1 + "username", equalTo(testData.user1().getUsername()))
-            .body(find1 + "firstName", equalTo(testData.user1().getFirstName()))
-            .body(find1 + "lastName", equalTo(testData.user1().getLastName()))
-            .body(find1 + "organisation", equalTo(testData.user1().getOrganisation()))
-            .body(find1 + "email", equalTo(testData.user1().getEmail()))
-            // Validate User2
-            .body(find2 + "username", equalTo(testData.user2().getUsername()))
-            .body(find2 + "firstName", equalTo(testData.user2().getFirstName()))
-            .body(find2 + "lastName", equalTo(testData.user2().getLastName()))
-            .body(find2 + "organisation", equalTo(testData.user2().getOrganisation()))
-            .body(find2 + "email", equalTo(testData.user2().getEmail()));
-        //@formatter:on
+        .statusCode(HttpStatus.OK.value())
+        // Validate User1
+        .body(find1 + "username", equalTo(testData.user1().getUsername()))
+        .body(find1 + "firstName", equalTo(testData.user1().getFirstName()))
+        .body(find1 + "lastName", equalTo(testData.user1().getLastName()))
+        .body(find1 + "organisation", equalTo(testData.user1().getOrganisation()))
+        .body(find1 + "email", equalTo(testData.user1().getEmail()))
+        // Validate User2
+        .body(find2 + "username", equalTo(testData.user2().getUsername()))
+        .body(find2 + "firstName", equalTo(testData.user2().getFirstName()))
+        .body(find2 + "lastName", equalTo(testData.user2().getLastName()))
+        .body(find2 + "organisation", equalTo(testData.user2().getOrganisation()))
+        .body(find2 + "email", equalTo(testData.user2().getEmail()));
+    //@formatter:on
   }
 
   @DisplayName("get should when return 404 when user doesn't")
   @Test
   public void shouldReturn404WhenUserDontExist() {
     //@formatter:off
-        given()
-            .baseUri(uri)
-            .header(AUTHORIZATION, ADMIN_AUTH_TOKEN)
-            .pathParam("id", INVALID_USER_ID)
+    given()
+        .baseUri(uri)
+        .header(AUTHORIZATION, ADMIN_AUTH_TOKEN)
+        .pathParam("id", INVALID_USER_ID)
         .when()
-            .get("/users/{id}")
+        .get("/users/{id}")
         .then()
-            .statusCode(NOT_FOUND.value());
-        //@formatter:on
+        .statusCode(NOT_FOUND.value());
+    //@formatter:on
   }
 
   @DisplayName("should be an admin to access User API")
   @Test
   public void shouldReturnForbiddenIfNotAnAdmin() {
     //@formatter:off
-        given()
-            .baseUri(uri)
-            .header(AUTHORIZATION, testData.user1Token())
-            .pathParam("id", INVALID_USER_ID)
+    given()
+        .baseUri(uri)
+        .header(AUTHORIZATION, testData.user1Token())
+        .pathParam("id", INVALID_USER_ID)
         .when()
-            .get("/users/{id}")
+        .get("/users/{id}")
         .then()
-            .statusCode(FORBIDDEN.value());
-        //@formatter:on
+        .statusCode(FORBIDDEN.value());
+    //@formatter:on
   }
 
   @DisplayName("get should return a user")
   @Test
   public void shouldReturnUserIfExists() {
     //@formatter:off
-        given()
-            .baseUri(uri)
-            .header(AUTHORIZATION, ADMIN_AUTH_TOKEN)
-            .pathParam("id", testData.user1().getId())
+    given()
+        .baseUri(uri)
+        .header(AUTHORIZATION, ADMIN_AUTH_TOKEN)
+        .pathParam("id", testData.user1().getId())
         .when()
-            .get("/users/{id}")
+        .get("/users/{id}")
         .then()
-            .statusCode(HttpStatus.OK.value())
-            .body("id", equalTo(testData.user1().getId()))
-            .body("firstName", equalTo(testData.user1().getFirstName()))
-            .body("lastName", equalTo(testData.user1().getLastName()))
-            .body("organisation", equalTo(testData.user1().getOrganisation()));
-        //@formatter:on
+        .statusCode(HttpStatus.OK.value())
+        .body("id", equalTo(testData.user1().getId()))
+        .body("firstName", equalTo(testData.user1().getFirstName()))
+        .body("lastName", equalTo(testData.user1().getLastName()))
+        .body("organisation", equalTo(testData.user1().getOrganisation()));
+    //@formatter:on
   }
 
   @DisplayName("update should return 404 when user is not found")
@@ -158,17 +158,17 @@ public class UserControllerTest {
             faker.company().name());
 
     //@formatter:off
-        given()
-            .baseUri(uri)
-            .header(AUTHORIZATION, ADMIN_AUTH_TOKEN)
-            .contentType(ContentType.JSON)
-            .pathParam("id", INVALID_USER_ID)
-            .body(updateRequest)
+    given()
+        .baseUri(uri)
+        .header(AUTHORIZATION, ADMIN_AUTH_TOKEN)
+        .contentType(ContentType.JSON)
+        .pathParam("id", INVALID_USER_ID)
+        .body(updateRequest)
         .when()
-            .put("/users/{id}")
+        .put("/users/{id}")
         .then()
-            .statusCode(NOT_FOUND.value());
-        //@formatter:on
+        .statusCode(NOT_FOUND.value());
+    //@formatter:on
   }
 
   @DisplayName("update should update and return the user")
@@ -183,21 +183,21 @@ public class UserControllerTest {
             faker.company().name());
 
     //@formatter:off
-        given()
-            .baseUri(uri)
-            .header(AUTHORIZATION, ADMIN_AUTH_TOKEN)
-            .contentType(ContentType.JSON)
-            .pathParam("id", newUser.getId())
-            .body(updateRequest)
+    given()
+        .baseUri(uri)
+        .header(AUTHORIZATION, ADMIN_AUTH_TOKEN)
+        .contentType(ContentType.JSON)
+        .pathParam("id", newUser.getId())
+        .body(updateRequest)
         .when()
-            .put("/users/{id}")
+        .put("/users/{id}")
         .then()
-            .statusCode(HttpStatus.OK.value())
-            .body("id", equalTo(newUser.getId()))
-            .body("firstName", equalTo(updateRequest.firstName()))
-            .body("lastName", equalTo(updateRequest.lastName()))
-            .body("organisation", equalTo(updateRequest.organisation()));
-        //@formatter:on
+        .statusCode(HttpStatus.OK.value())
+        .body("id", equalTo(newUser.getId()))
+        .body("firstName", equalTo(updateRequest.firstName()))
+        .body("lastName", equalTo(updateRequest.lastName()))
+        .body("organisation", equalTo(updateRequest.organisation()));
+    //@formatter:on
   }
 
   @DisplayName("block should block the user")
@@ -206,15 +206,15 @@ public class UserControllerTest {
     var user = testData.createRandomUser();
 
     //@formatter:off
-        given()
-            .baseUri(uri)
-            .header(AUTHORIZATION, ADMIN_AUTH_TOKEN)
-            .pathParam("id", user.getId())
+    given()
+        .baseUri(uri)
+        .header(AUTHORIZATION, ADMIN_AUTH_TOKEN)
+        .pathParam("id", user.getId())
         .when()
-            .put("/users/{id}/block")
+        .put("/users/{id}/block")
         .then()
-            .statusCode(NO_CONTENT.value());
-        //@formatter:on
+        .statusCode(NO_CONTENT.value());
+    //@formatter:on
 
     assertThat(user.isBlocked(), equalTo(true));
   }
@@ -226,15 +226,15 @@ public class UserControllerTest {
     user.block();
 
     //@formatter:off
-        given()
-            .baseUri(uri)
-            .header(AUTHORIZATION, ADMIN_AUTH_TOKEN)
-            .pathParam("id", user.getId())
+    given()
+        .baseUri(uri)
+        .header(AUTHORIZATION, ADMIN_AUTH_TOKEN)
+        .pathParam("id", user.getId())
         .when()
-            .put("/users/{id}/unblock")
+        .put("/users/{id}/unblock")
         .then()
-            .statusCode(NO_CONTENT.value());
-        //@formatter:on
+        .statusCode(NO_CONTENT.value());
+    //@formatter:on
 
     assertThat(user.isBlocked(), equalTo(false));
   }
@@ -243,30 +243,30 @@ public class UserControllerTest {
   @Test
   public void shouldUnblockUserReturnNotFound() {
     //@formatter:off
-        given()
-            .baseUri(uri)
-            .header(AUTHORIZATION, ADMIN_AUTH_TOKEN)
-            .pathParam("id", INVALID_USER_ID)
+    given()
+        .baseUri(uri)
+        .header(AUTHORIZATION, ADMIN_AUTH_TOKEN)
+        .pathParam("id", INVALID_USER_ID)
         .when()
-            .put("/users/{id}/unblock")
+        .put("/users/{id}/unblock")
         .then()
-            .statusCode(NOT_FOUND.value());
-        //@formatter:on
+        .statusCode(NOT_FOUND.value());
+    //@formatter:on
   }
 
   @DisplayName("block should return 404 user is not found")
   @Test
   public void shouldBlockUserReturnNotFound() {
     //@formatter:off
-        given()
-            .baseUri(uri)
-            .header(AUTHORIZATION, ADMIN_AUTH_TOKEN)
-            .pathParam("id", INVALID_USER_ID)
+    given()
+        .baseUri(uri)
+        .header(AUTHORIZATION, ADMIN_AUTH_TOKEN)
+        .pathParam("id", INVALID_USER_ID)
         .when()
-            .put("/users/{id}/block")
+        .put("/users/{id}/block")
         .then()
-            .statusCode(NOT_FOUND.value());
-        //@formatter:on
+        .statusCode(NOT_FOUND.value());
+    //@formatter:on
   }
 
   @DisplayName("create should create and return the new user")
@@ -282,19 +282,19 @@ public class UserControllerTest {
             faker.company().name());
 
     //@formatter:off
-        given()
-            .baseUri(uri)
-            .header(AUTHORIZATION, ADMIN_AUTH_TOKEN)
-            .contentType(ContentType.JSON)
-            .body(createRequest)
+    given()
+        .baseUri(uri)
+        .header(AUTHORIZATION, ADMIN_AUTH_TOKEN)
+        .contentType(ContentType.JSON)
+        .body(createRequest)
         .when()
-            .post("/users")
+        .post("/users")
         .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .body("id", greaterThan(0))
-            .body("firstName", equalTo(createRequest.firstName()))
-            .body("lastName", equalTo(createRequest.lastName()))
-            .body("organisation", equalTo(createRequest.organisation()));
-        //@formatter:on
+        .statusCode(HttpStatus.CREATED.value())
+        .body("id", greaterThan(0))
+        .body("firstName", equalTo(createRequest.firstName()))
+        .body("lastName", equalTo(createRequest.lastName()))
+        .body("organisation", equalTo(createRequest.organisation()));
+    //@formatter:on
   }
 }
