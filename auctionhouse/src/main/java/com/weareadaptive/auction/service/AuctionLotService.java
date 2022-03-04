@@ -1,10 +1,12 @@
 package com.weareadaptive.auction.service;
-
-import static java.lang.String.format;
-
+import com.weareadaptive.auction.model.AuctionLot;
 import com.weareadaptive.auction.model.AuctionState;
+import com.weareadaptive.auction.model.BusinessException;
+import com.weareadaptive.auction.model.User;
 import com.weareadaptive.auction.model.UserState;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class AuctionLotService {
@@ -17,5 +19,21 @@ public class AuctionLotService {
     this.userState = userState;
   }
 
+  public AuctionLot createAuction(String username, String symbol, int quantity, double minPrice){
+    Optional<User> userOptional = userState.getByUsername(username);
+    if(userOptional.isEmpty()){
+      throw new BusinessException("username not valid");
+    }
+
+    User currentUser = userOptional.get();
+    int auctionID = auctionState.nextId();
+    return new AuctionLot(
+      auctionID,
+      currentUser,
+      symbol,
+      quantity,
+      minPrice
+    );
+  }
 
 }
