@@ -27,7 +27,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class AuctionControllerTest {
-
+  public final int INVALID_AUCTION_ID = 99999;
   @Autowired
   private TestData testData;
   @LocalServerPort
@@ -107,17 +107,19 @@ class AuctionControllerTest {
         .body("status", equalTo(testData.auctionApple().getStatus().toString()));
   }
 
-  private Stream<Arguments> getTestDataAuctionID(){
-    return Stream.of(
-
-    );
-  }
 
 
   @DisplayName("get auction return bad request if ID not exist")
   @Test
   public void returnBadRequestIfAuctionIDNotExists(){
-
+    given()
+        .baseUri(uri)
+        .header(AUTHORIZATION, testData.user1Token())
+        .pathParam("id", INVALID_AUCTION_ID)
+        .when()
+        .get("/auctions/{id}")
+        .then()
+        .statusCode(HttpStatus.NOT_FOUND.value());
   }
 
 }
