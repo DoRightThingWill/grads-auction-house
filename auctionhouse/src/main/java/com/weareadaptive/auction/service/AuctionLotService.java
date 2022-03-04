@@ -2,6 +2,7 @@ package com.weareadaptive.auction.service;
 import com.weareadaptive.auction.exception.ModelNotFoundException;
 import com.weareadaptive.auction.model.AuctionLot;
 import com.weareadaptive.auction.model.AuctionState;
+import com.weareadaptive.auction.model.Bid;
 import com.weareadaptive.auction.model.KeyAlreadyExistsException;
 import com.weareadaptive.auction.model.User;
 import com.weareadaptive.auction.model.UserState;
@@ -57,6 +58,14 @@ public class AuctionLotService {
 
   public List<AuctionLot> getAllAuctions(){
     return auctionState.stream().toList();
+  }
+
+  public Bid bidOnAuction(int auctionID, String owner, int quantity, double price){
+    AuctionLot currentAuction = getAuctionByID(auctionID);
+    User bidder = userState.getByUsername(owner).get();
+    Bid newBid = new Bid(bidder, quantity, price);
+    currentAuction.bid(newBid);
+    return newBid;
   }
 
 }

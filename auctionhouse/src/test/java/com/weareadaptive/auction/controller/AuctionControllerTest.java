@@ -3,7 +3,9 @@ package com.weareadaptive.auction.controller;
 import com.github.javafaker.Faker;
 import com.weareadaptive.auction.TestData;
 import com.weareadaptive.auction.controller.dto.CreateAuctionRequest;
+import com.weareadaptive.auction.controller.dto.CreateBidRequest;
 import com.weareadaptive.auction.model.AuctionLot;
+import com.weareadaptive.auction.model.Bid;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -153,6 +155,41 @@ class AuctionControllerTest {
         .body(found3+"status", equalTo(testData.auctionThree().getStatus().toString()));
 
   }
+
+  @DisplayName("return bid information when successfully bid an auctions")
+  @Test
+  public void returnBidWhenBidAnAuctions(){
+    var createBidRequest = new CreateBidRequest(
+        testData.user2().getUsername(),
+        50,
+        2.3
+    );
+
+    given()
+        .baseUri(uri)
+        .header(AUTHORIZATION, testData.user2Token())
+        .pathParam("id",testData.auctionTwo().getId())
+        .contentType(ContentType.JSON)
+        .body(createBidRequest)
+        .when()
+        .post("/auctions/{id}/bid")
+        .then()
+        .statusCode(HttpStatus.CREATED.value())
+        .body("owner", equalTo(createBidRequest.owner()))
+        .body("quantity", equalTo(createBidRequest.quantity()))
+        .body("price", equalTo((float)createBidRequest.price()))
+        .body("state", equalTo(Bid.State.PENDING.toString()));
+  }
+
+
+  // this kind of data validation should be handled by front end ???
+  @DisplayName("return 404 NOT-Found when trying to bid auction but can not find the auction")
+  @Test
+  public void return404WhenBiddingButAuctionNotFound(){
+
+  }
+
+
 
 
 }

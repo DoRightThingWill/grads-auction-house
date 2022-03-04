@@ -1,7 +1,10 @@
 package com.weareadaptive.auction.controller;
 import com.weareadaptive.auction.controller.dto.AuctionResponse;
+import com.weareadaptive.auction.controller.dto.BidResponse;
 import com.weareadaptive.auction.controller.dto.CreateAuctionRequest;
+import com.weareadaptive.auction.controller.dto.CreateBidRequest;
 import com.weareadaptive.auction.controller.dto.CreateUserRequest;
+import com.weareadaptive.auction.model.Bid;
 import com.weareadaptive.auction.service.AuctionLotService;
 import java.net.PortUnreachableException;
 import java.util.List;
@@ -56,6 +59,19 @@ public class AuctionController {
         .stream()
         .map(auctionLot -> new AuctionResponse(auctionLot))
         .toList();
+  }
+
+  @PostMapping("/{id}/bid")
+  @ResponseStatus(HttpStatus.CREATED)
+  public BidResponse bidOnAuction(@RequestBody @Valid CreateBidRequest request, @PathVariable int id){
+
+    Bid createdBid = auctionLotService.bidOnAuction(
+        id,
+        request.owner(),
+        request.quantity(),
+        request.price()
+    );
+    return new BidResponse(createdBid);
   }
 
 }

@@ -92,6 +92,10 @@ public class AuctionLot implements Entity {
     bids.add(new Bid(bidder, quantity, price));
   }
 
+  public void bid(Bid bid){
+    bid(bid.getUser(), bid.getQuantity(), bid.getPrice());
+  }
+
   public void close() {
     if (status == Status.CLOSED) {
       throw new KeyAlreadyExistsException("Cannot close because already closed.");
