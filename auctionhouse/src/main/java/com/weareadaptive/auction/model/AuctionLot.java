@@ -28,16 +28,16 @@ public class AuctionLot implements Entity {
 
   public AuctionLot(int id, User owner, String symbol, int quantity, double minPrice) {
     if (owner == null) {
-      throw new BusinessException("owner cannot be null");
+      throw new KeyAlreadyExistsException("owner cannot be null");
     }
     if (isBlank(symbol)) {
-      throw new BusinessException("symbol cannot be null or empty");
+      throw new KeyAlreadyExistsException("symbol cannot be null or empty");
     }
     if (minPrice < 0) {
-      throw new BusinessException("minPrice cannot be bellow 0");
+      throw new KeyAlreadyExistsException("minPrice cannot be bellow 0");
     }
     if (quantity < 0) {
-      throw new BusinessException("quantity must be above 0");
+      throw new KeyAlreadyExistsException("quantity must be above 0");
     }
     this.id = id;
     this.owner = owner;
@@ -63,7 +63,7 @@ public class AuctionLot implements Entity {
 
   public ClosingSummary getClosingSummary() {
     if (Status.CLOSED != status) {
-      throw new BusinessException("AuctionLot must be closed to have a closing summary");
+      throw new KeyAlreadyExistsException("AuctionLot must be closed to have a closing summary");
     }
     return closingSummary;
   }
@@ -74,19 +74,19 @@ public class AuctionLot implements Entity {
 
   public void bid(User bidder, int quantity, double price) {
     if (status == Status.CLOSED) {
-      throw new BusinessException("Cannot close an already closed.");
+      throw new KeyAlreadyExistsException("Cannot close an already closed.");
     }
 
     if (bidder == owner) {
-      throw new BusinessException("User cannot bid on his own auctions");
+      throw new KeyAlreadyExistsException("User cannot bid on his own auctions");
     }
 
     if (quantity < 0) {
-      throw new BusinessException("quantity must be be above 0");
+      throw new KeyAlreadyExistsException("quantity must be be above 0");
     }
 
     if (price < minPrice) {
-      throw new BusinessException(format("price needs to be above %s", minPrice));
+      throw new KeyAlreadyExistsException(format("price needs to be above %s", minPrice));
     }
 
     bids.add(new Bid(bidder, quantity, price));
@@ -94,7 +94,7 @@ public class AuctionLot implements Entity {
 
   public void close() {
     if (status == Status.CLOSED) {
-      throw new BusinessException("Cannot close because already closed.");
+      throw new KeyAlreadyExistsException("Cannot close because already closed.");
     }
 
     status = Status.CLOSED;

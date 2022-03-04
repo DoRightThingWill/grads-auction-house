@@ -22,11 +22,11 @@ public class UserState extends State<User> {
 
   @Override
   protected void onAdd(User model) {
-    if (usernameIndex.containsKey(model.getUsername())) {
-      throw new BusinessException(format("Username \"%s\" already exist", model.getUsername()));
-    }
-
     usernameIndex.put(model.getUsername(), model);
+  }
+
+  public boolean hasUser(String username){
+    return usernameIndex.containsKey(username);
   }
 
   public Optional<User> getByUsername(@NotNull String username) {

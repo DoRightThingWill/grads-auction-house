@@ -34,19 +34,19 @@ public class User implements Entity {
       String organisation,
       boolean isAdmin) {
     if (isBlank(username)) {
-      throw new BusinessException("username cannot be null or empty");
+      throw new KeyAlreadyExistsException("username cannot be null or empty");
     }
     if (isBlank(password)) {
-      throw new BusinessException("password cannot be null or empty");
+      throw new KeyAlreadyExistsException("password cannot be null or empty");
     }
     if (isBlank(firstName)) {
-      throw new BusinessException("firstName cannot be null or empty");
+      throw new KeyAlreadyExistsException("firstName cannot be null or empty");
     }
     if (isBlank(lastName)) {
-      throw new BusinessException("lastName cannot be null or empty");
+      throw new KeyAlreadyExistsException("lastName cannot be null or empty");
     }
     if (isBlank(organisation)) {
-      throw new BusinessException("organisation cannot be null or empty");
+      throw new KeyAlreadyExistsException("organisation cannot be null or empty");
     }
     //TODO: Add regex for email
     this.id = id;

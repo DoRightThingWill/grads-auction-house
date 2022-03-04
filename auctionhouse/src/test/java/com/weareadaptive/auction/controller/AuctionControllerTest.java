@@ -1,5 +1,4 @@
 package com.weareadaptive.auction.controller;
-
 import com.github.javafaker.Faker;
 import com.weareadaptive.auction.TestData;
 import com.weareadaptive.auction.controller.dto.CreateAuctionRequest;
@@ -14,9 +13,11 @@ import org.springframework.http.HttpStatus;
 
 import static com.weareadaptive.auction.TestData.ADMIN_AUTH_TOKEN;
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class AuctionControllerTest {
@@ -32,7 +33,6 @@ class AuctionControllerTest {
   public void initialiseRestAssuredMockMvcStandalone() {
     uri = "http://localhost:" + port;
   }
-
 
   @DisplayName("create should create and return the new auction")
   @Test
@@ -58,4 +58,27 @@ class AuctionControllerTest {
       .body("minPrice", equalTo((float)createAuctionRequest.minPrice()))
       .body("quantity", equalTo(createAuctionRequest.quantity()));
   }
-}
+
+  @DisplayName("create should return a bad request when the symbol is duplicated")
+  @Test
+  public void create_shouldReturnBadRequestIfSymbolExist() {
+    var createAuctionRequest = new CreateAuctionRequest(
+      testData.auctionApple().getSymbol(),
+      2.23,
+      200
+    );
+
+    given()
+      .baseUri(uri)
+      .header(AUTHORIZATION, testData.user1Token())
+      .contentType(ContentType.JSON)
+      .body(createAuctionRequest)
+    .when()
+      .post("/auctions")
+    .then()
+      .statusCode(BAD_REQUEST.value())
+      .body("message", containsString("already exist"));
+
+  }
+
+  }

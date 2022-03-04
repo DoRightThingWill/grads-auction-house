@@ -9,15 +9,15 @@ public class Bid {
 
   public Bid(User user, int quantity, double price) {
     if (user == null) {
-      throw new BusinessException("user cannot be null");
+      throw new KeyAlreadyExistsException("user cannot be null");
     }
 
     if (price <= 0) {
-      throw new BusinessException("price must be above 0");
+      throw new KeyAlreadyExistsException("price must be above 0");
     }
 
     if (quantity <= 0) {
-      throw new BusinessException("quantity must be above 0");
+      throw new KeyAlreadyExistsException("quantity must be above 0");
     }
 
     this.price = price;
@@ -48,7 +48,7 @@ public class Bid {
 
   public void lost() {
     if (state != State.PENDING) {
-      throw new BusinessException("Must be a pending bid");
+      throw new KeyAlreadyExistsException("Must be a pending bid");
     }
 
     state = State.LOST;
@@ -56,11 +56,11 @@ public class Bid {
 
   public void win(int winQuantity) {
     if (state != State.PENDING) {
-      throw new BusinessException("Must be a pending bid");
+      throw new KeyAlreadyExistsException("Must be a pending bid");
     }
 
     if (quantity < winQuantity) {
-      throw new BusinessException("winQuantity must be lower or equal to to the bid quantity");
+      throw new KeyAlreadyExistsException("winQuantity must be lower or equal to to the bid quantity");
     }
 
     state = State.WIN;

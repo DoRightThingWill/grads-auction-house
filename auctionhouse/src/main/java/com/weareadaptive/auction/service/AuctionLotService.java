@@ -1,7 +1,7 @@
 package com.weareadaptive.auction.service;
 import com.weareadaptive.auction.model.AuctionLot;
 import com.weareadaptive.auction.model.AuctionState;
-import com.weareadaptive.auction.model.BusinessException;
+import com.weareadaptive.auction.model.KeyAlreadyExistsException;
 import com.weareadaptive.auction.model.User;
 import com.weareadaptive.auction.model.UserState;
 import org.springframework.stereotype.Service;
@@ -22,18 +22,26 @@ public class AuctionLotService {
   public AuctionLot createAuction(String username, String symbol, int quantity, double minPrice){
     Optional<User> userOptional = userState.getByUsername(username);
     if(userOptional.isEmpty()){
-      throw new BusinessException("username not valid");
+      throw new KeyAlreadyExistsException("username not valid");
+    }
+
+    if(auctionState.hasSymbol(symbol)){
+      throw new KeyAlreadyExistsException("Symbol already exists");
     }
 
     User currentUser = userOptional.get();
     int auctionID = auctionState.nextId();
-    return new AuctionLot(
+
+    AuctionLot createdAuction = new AuctionLot(
       auctionID,
       currentUser,
       symbol,
       quantity,
       minPrice
     );
+
+    auctionState.add(createdAuction);
+    return createdAuction;
   }
 
 }

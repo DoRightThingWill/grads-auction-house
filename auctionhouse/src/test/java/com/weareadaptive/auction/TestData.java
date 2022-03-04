@@ -2,6 +2,7 @@ package com.weareadaptive.auction;
 
 import com.github.javafaker.Faker;
 import com.weareadaptive.auction.model.AuctionLot;
+import com.weareadaptive.auction.model.AuctionState;
 import com.weareadaptive.auction.model.User;
 import com.weareadaptive.auction.service.AuctionLotService;
 import com.weareadaptive.auction.service.UserService;
@@ -15,14 +16,18 @@ public class TestData {
   public static final String ADMIN_AUTH_TOKEN = "Bearer ADMIN:adminpassword";
 
   private final UserService userService;
+  private final AuctionLotService auctionLotService;
   private final Faker faker;
   private User user1;
   private User user2;
   private User user3;
   private User user4;
 
-  public TestData(UserService userService) {
+  private AuctionLot auctionApple;
+
+  public TestData(UserService userService, AuctionLotService auctionLotService) {
     this.userService = userService;
+    this.auctionLotService = auctionLotService;
     faker = new Faker();
   }
 
@@ -32,6 +37,9 @@ public class TestData {
     user2 = createRandomUser();
     user3 = createRandomUser();
     user4 = createRandomUser();
+
+    auctionApple = createAuction(Stock.APPLE.symbol);
+
   }
 
   public User user1() {
@@ -64,6 +72,18 @@ public class TestData {
 
   public String user4Token() {
     return getToken(user4);
+  }
+
+  public AuctionLot auctionApple(){
+    return auctionApple;
+  }
+
+  public AuctionLot createAuction(String symbol){
+    return auctionLotService.createAuction(
+      user1.getUsername(),
+      symbol.toString(),
+      200,
+      2.23);
   }
 
   public User createRandomUser() {

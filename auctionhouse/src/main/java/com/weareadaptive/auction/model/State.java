@@ -24,7 +24,7 @@ public class State<T extends Entity> {
 
   public void add(T model) {
     if (entities.containsKey(model.getId())) {
-      throw new BusinessException(ITEM_ALREADY_EXISTS);
+      throw new KeyAlreadyExistsException(ITEM_ALREADY_EXISTS);
     }
     onAdd(model);
     entities.put(model.getId(), model);
