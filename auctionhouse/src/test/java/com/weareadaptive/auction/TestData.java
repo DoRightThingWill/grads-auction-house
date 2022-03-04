@@ -2,7 +2,6 @@ package com.weareadaptive.auction;
 
 import com.github.javafaker.Faker;
 import com.weareadaptive.auction.model.AuctionLot;
-import com.weareadaptive.auction.model.AuctionState;
 import com.weareadaptive.auction.model.User;
 import com.weareadaptive.auction.service.AuctionLotService;
 import com.weareadaptive.auction.service.UserService;
@@ -77,13 +76,13 @@ public class TestData {
     return getToken(user4);
   }
 
-  public AuctionLot auctionApple(){
+  public AuctionLot auctionOne(){
     return auctionApple;
   }
-  public AuctionLot auctionMSFT(){
+  public AuctionLot auctionTwo(){
     return auctionMSFT;
   }
-  public AuctionLot auctionFB(){
+  public AuctionLot auctionThree(){
     return auctionFB;
   }
 

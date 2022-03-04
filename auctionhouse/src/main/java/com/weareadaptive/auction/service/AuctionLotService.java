@@ -5,6 +5,7 @@ import com.weareadaptive.auction.model.AuctionState;
 import com.weareadaptive.auction.model.KeyAlreadyExistsException;
 import com.weareadaptive.auction.model.User;
 import com.weareadaptive.auction.model.UserState;
+import java.util.List;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -52,6 +53,10 @@ public class AuctionLotService {
       throw new ModelNotFoundException();
     }
     return auctionOptional.get();
+  }
+
+  public List<AuctionLot> getAllAuctions(){
+    return auctionState.stream().toList();
   }
 
 }

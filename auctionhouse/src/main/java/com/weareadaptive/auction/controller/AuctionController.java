@@ -3,6 +3,8 @@ import com.weareadaptive.auction.controller.dto.AuctionResponse;
 import com.weareadaptive.auction.controller.dto.CreateAuctionRequest;
 import com.weareadaptive.auction.controller.dto.CreateUserRequest;
 import com.weareadaptive.auction.service.AuctionLotService;
+import java.net.PortUnreachableException;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,6 +49,13 @@ public class AuctionController {
     return new AuctionResponse(auctionLotService.getAuctionByID(id));
   }
 
-
+  @GetMapping
+  @ResponseStatus(HttpStatus.OK)
+  public List<AuctionResponse> getAllAuctions(){
+    return auctionLotService.getAllAuctions()
+        .stream()
+        .map(auctionLot -> new AuctionResponse(auctionLot))
+        .toList();
+  }
 
 }
