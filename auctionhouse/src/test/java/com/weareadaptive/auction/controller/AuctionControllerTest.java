@@ -281,7 +281,19 @@ class AuctionControllerTest {
         );
   }
 
-
+  @DisplayName("return brief closing summary when close an auction")
+  @Test
+  public void returnBadRequestOnceCloseOthersAuction() {
+    given()
+        .baseUri(uri)
+        .header(AUTHORIZATION, testData.user2Token())
+        .pathParam("id", testData.auctionUser1Apple().getId())
+        .when()
+        .get("/auctions/{id}/close")
+        .then()
+        .statusCode(BAD_REQUEST.value())
+        ;
+  }
 
 
 }

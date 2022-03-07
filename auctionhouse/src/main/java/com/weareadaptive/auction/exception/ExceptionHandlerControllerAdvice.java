@@ -54,4 +54,14 @@ public class ExceptionHandlerControllerAdvice {
         BAD_REQUEST);
   }
 
+
+  @ExceptionHandler(BidOthersAuction.class)
+  public ResponseEntity<Object> handleBidOtherUsersAuction(BidOthersAuction ex) {
+    var headers = new HttpHeaders();
+    headers.setContentType(APPLICATION_PROBLEM_JSON);
+    return new ResponseEntity<>(
+        new Problem(BAD_REQUEST.value(), BAD_REQUEST.name(), ex.getMessage()), headers,
+        BAD_REQUEST);
+  }
+
 }

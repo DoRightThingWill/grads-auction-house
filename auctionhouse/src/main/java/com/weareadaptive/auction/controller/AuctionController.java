@@ -93,7 +93,7 @@ public class AuctionController {
   public BriefClosingSummary closeAuction(@PathVariable int id, Principal principal) {
     String username = principal.getName();
     AuctionLot targetAuction = auctionLotService.getAuctionById(id);
-    targetAuction.close();
+    targetAuction.close(username);
     return new BriefClosingSummary(targetAuction.getClosingSummary());
   }
 

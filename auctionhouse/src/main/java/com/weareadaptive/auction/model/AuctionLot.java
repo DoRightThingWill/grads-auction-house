@@ -9,6 +9,7 @@ import static java.util.Comparator.comparing;
 import static java.util.Comparator.comparingInt;
 import static org.apache.logging.log4j.util.Strings.isBlank;
 
+import com.weareadaptive.auction.exception.BidOthersAuction;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -92,11 +93,16 @@ public class AuctionLot implements Entity {
     bids.add(new Bid(bidder, quantity, price));
   }
 
-  public void bid(Bid bid){
+  public void bid(Bid bid) {
     bid(bid.getUser(), bid.getQuantity(), bid.getPrice());
   }
 
-  public void close() {
+  public void close(String username) {
+
+    if (!owner.getUsername().equals(username)) {
+      throw new BidOthersAuction("Can not close auction belonging to others");
+    }
+
     if (status == Status.CLOSED) {
       throw new KeyAlreadyExistsException("Cannot close because already closed.");
     }
