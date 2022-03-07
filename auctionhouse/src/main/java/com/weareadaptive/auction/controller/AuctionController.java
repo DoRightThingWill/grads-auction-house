@@ -2,11 +2,15 @@ package com.weareadaptive.auction.controller;
 
 import com.weareadaptive.auction.controller.dto.AuctionResponse;
 import com.weareadaptive.auction.controller.dto.BidResponse;
+import com.weareadaptive.auction.controller.dto.BriefClosingSummary;
 import com.weareadaptive.auction.controller.dto.CreateAuctionRequest;
 import com.weareadaptive.auction.controller.dto.CreateBidRequest;
+import com.weareadaptive.auction.model.AuctionLot;
 import com.weareadaptive.auction.model.Bid;
 import com.weareadaptive.auction.service.AuctionLotService;
+import java.security.Principal;
 import java.util.List;
+import javax.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,8 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
-import java.security.Principal;
 
 @RestController
 @RequestMapping("/auctions")
@@ -49,8 +51,8 @@ public class AuctionController {
 
   @GetMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
-  AuctionResponse getAuctionByID(@PathVariable int id) {
-    return new AuctionResponse(auctionLotService.getAuctionByID(id));
+  AuctionResponse getAuctionById(@PathVariable int id) {
+    return new AuctionResponse(auctionLotService.getAuctionById(id));
   }
 
   @GetMapping
@@ -58,7 +60,7 @@ public class AuctionController {
   public List<AuctionResponse> getAllAuctions() {
     return auctionLotService.getAllAuctions()
         .stream()
-        .map(auctionLot -> new AuctionResponse(auctionLot))
+        .map(AuctionResponse::new)
         .toList();
   }
 
@@ -78,12 +80,21 @@ public class AuctionController {
 
   @GetMapping("/{id}/bids/get-all")
   @ResponseStatus(HttpStatus.OK)
-  public List<BidResponse> getAllBidsForAnAuctions(@PathVariable int id, Principal principal){
+  public List<BidResponse> getAllBidsForAnAuctions(@PathVariable int id, Principal principal) {
     String username = principal.getName();
-    return auctionLotService.getAuctionByID(id).getBids().stream()
+    return auctionLotService.getAuctionById(id).getBids().stream()
         .filter(bid -> bid.getUser().getUsername().equals(username))
-        .map(bid -> new BidResponse(bid))
+        .map(BidResponse::new)
         .toList();
+  }
+
+  @GetMapping("/{id}/close")
+  @ResponseStatus(HttpStatus.OK)
+  public BriefClosingSummary closeAuction(@PathVariable int id, Principal principal) {
+    String username = principal.getName();
+    AuctionLot targetAuction = auctionLotService.getAuctionById(id);
+    targetAuction.close();
+    return new BriefClosingSummary(targetAuction.getClosingSummary());
   }
 
 }

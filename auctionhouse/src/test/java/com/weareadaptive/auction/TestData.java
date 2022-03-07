@@ -23,9 +23,9 @@ public class TestData {
   private User user3;
   private User user4;
 
-  private AuctionLot auctionApple;
-  private AuctionLot auctionMSFT;
-  private AuctionLot auctionFB;
+  private AuctionLot auctionUser1Apple;
+  private AuctionLot auctionUser2MSFT;
+  private AuctionLot auctionUser1FB;
 
   private Bid bidOneUser2;
   private Bid bidTwoUser2;
@@ -46,19 +46,19 @@ public class TestData {
     user3 = createRandomUser();
     user4 = createRandomUser();
 
-    auctionApple = createAuction(Stock.APPLE.symbol);
-    auctionMSFT = createAuction(Stock.MICROSOFT.symbol);
-    auctionFB = createAuction(Stock.META.symbol);
+    auctionUser1Apple = createAuctionUser1(Stock.APPLE.symbol);
+    auctionUser2MSFT = createAuctionUser2(Stock.MICROSOFT.symbol);
+    auctionUser1FB = createAuctionUser1(Stock.META.symbol);
 
     bidOneUser2 = bidOneUser2();
     bidTwoUser2 = bidTwoUser2();
     bidThreeUser2 = bidThreeUser2();
     bidFourUser3 = bidFourUser3();
 
-    auctionApple.bid(bidOneUser2);
-    auctionApple.bid(bidTwoUser2);
-    auctionApple.bid(bidThreeUser2);
-    auctionApple.bid(bidFourUser3);
+    auctionUser1Apple.bid(bidOneUser2);
+    auctionUser1Apple.bid(bidTwoUser2);
+    auctionUser1Apple.bid(bidThreeUser2);
+    auctionUser1Apple.bid(bidFourUser3);
 
   }
 
@@ -109,23 +109,31 @@ public class TestData {
     return new Bid(user3, 30, 6.9);
   }
 
-  public AuctionLot auctionOne(){
-    return auctionApple;
+  public AuctionLot auctionUser1Apple(){
+    return auctionUser1Apple;
   }
-  public AuctionLot auctionTwo(){
-    return auctionMSFT;
+  public AuctionLot auctionUser2MSFT(){
+    return auctionUser2MSFT;
   }
-  public AuctionLot auctionThree(){
-    return auctionFB;
+  public AuctionLot auctionUser1FB(){
+    return auctionUser1FB;
   }
 
 
-  public AuctionLot createAuction(String symbol){
+  public AuctionLot createAuctionUser1(String symbol){
     return auctionLotService.createAuction(
       user1.getUsername(),
       symbol,
-      faker.number().numberBetween(100, 200),
-      faker.number().randomDouble(2, 1,4));
+      200,
+      3.5);
+  }
+
+  public AuctionLot createAuctionUser2(String symbol){
+    return auctionLotService.createAuction(
+        user2.getUsername(),
+        symbol,
+        150,
+        3.5);
   }
 
   public User createRandomUser() {

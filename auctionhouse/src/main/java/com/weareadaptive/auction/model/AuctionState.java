@@ -3,8 +3,6 @@ package com.weareadaptive.auction.model;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.weareadaptive.auction.controller.dto.AuctionResponse;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -12,16 +10,17 @@ public class AuctionState extends State<AuctionLot> {
 
   private final Map<String, AuctionLot> symbol2Auction;
 
-  public AuctionState(){
+  @SuppressWarnings("checkstyle:WhitespaceAround")
+  public AuctionState() {
     this.symbol2Auction = new HashMap<>();
   }
 
-  public boolean hasSymbol(String symbol){
+  public boolean hasSymbol(String symbol) {
     return symbol2Auction.containsKey(symbol);
   }
 
   @Override
-  public void onAdd( AuctionLot auction){
+  public void onAdd(AuctionLot auction) {
     symbol2Auction.put(auction.getSymbol(), auction);
   }
 
@@ -55,4 +54,5 @@ public class AuctionState extends State<AuctionLot> {
                 winningBod.originalBid().getPrice()))
         ).toList();
   }
+
 }

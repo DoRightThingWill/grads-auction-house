@@ -5,24 +5,17 @@ import com.weareadaptive.auction.exception.ModelNotFoundException;
 import com.weareadaptive.auction.model.AuctionLot;
 import com.weareadaptive.auction.model.AuctionState;
 import com.weareadaptive.auction.model.Bid;
+import com.weareadaptive.auction.model.BusinessException;
 import com.weareadaptive.auction.model.KeyAlreadyExistsException;
 import com.weareadaptive.auction.model.User;
 import com.weareadaptive.auction.model.UserState;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 
 @Service
-public class AuctionLotService {
-  public static final String AUCTION_LOT_ENTITY = "AuctionLot";
-  private final AuctionState auctionState;
-  private final UserState userState;
-
-  public AuctionLotService(AuctionState auctionState, UserState userState) {
-    this.auctionState = auctionState;
-    this.userState = userState;
-  }
+public record AuctionLotService(AuctionState auctionState, UserState userState) {
 
   public AuctionLot createAuction(String username, String symbol, int quantity, double minPrice) {
     Optional<User> userOptional = userState.getByUsername(username);
@@ -34,22 +27,16 @@ public class AuctionLotService {
       throw new KeyAlreadyExistsException("Symbol already exists");
     }
     User currentUser = userOptional.get();
-    int auctionID = auctionState.nextId();
+    int auctionId = auctionState.nextId();
 
-    AuctionLot createdAuction = new AuctionLot(
-        auctionID,
-        currentUser,
-        symbol,
-        quantity,
-        minPrice
-    );
+    AuctionLot createdAuction = new AuctionLot(auctionId, currentUser, symbol, quantity, minPrice);
 
     auctionState.add(createdAuction);
     return createdAuction;
   }
 
 
-  public AuctionLot getAuctionByID(int id) {
+  public AuctionLot getAuctionById(int id) {
     Optional<AuctionLot> auctionOptional = auctionState.getModelByID(id);
     if (auctionOptional.isEmpty()) {
       throw new ModelNotFoundException();
@@ -61,9 +48,12 @@ public class AuctionLotService {
     return auctionState.stream().toList();
   }
 
-  public Bid bidOnAuction(int auctionID, String owner, int quantity, double price) {
-    AuctionLot currentAuction = getAuctionByID(auctionID);
+  public Bid bidOnAuction(int auctionId, String owner, int quantity, double price) {
+    AuctionLot currentAuction = getAuctionById(auctionId);
 
+    if (userState.getByUsername(owner).isEmpty()) {
+      throw new BusinessException("can not find user by username");
+    }
     User bidder = userState.getByUsername(owner).get();
 
 

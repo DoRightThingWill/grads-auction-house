@@ -1,6 +1,13 @@
 package com.weareadaptive.auction.controller;
 
-import com.github.javafaker.Faker;
+import static io.restassured.RestAssured.given;
+import static java.lang.String.format;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+
 import com.weareadaptive.auction.TestData;
 import com.weareadaptive.auction.controller.dto.CreateAuctionRequest;
 import com.weareadaptive.auction.controller.dto.CreateBidRequest;
@@ -16,14 +23,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 
-import static io.restassured.RestAssured.given;
-import static java.lang.String.format;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class AuctionControllerTest {
   public final int INVALID_AUCTION_ID = 99999;
@@ -32,7 +31,6 @@ class AuctionControllerTest {
   @LocalServerPort
   private int port;
   private String uri;
-  private final Faker faker = new Faker();
 
   @BeforeEach
   public void initialiseRestAssuredMockMvcStandalone() {
@@ -68,7 +66,7 @@ class AuctionControllerTest {
   @Test
   public void create_shouldReturnBadRequestIfSymbolExist() {
     var createAuctionRequest = new CreateAuctionRequest(
-        testData.auctionOne().getSymbol(),
+        testData.auctionUser1Apple().getSymbol(),
         2.23,
         200
     );
@@ -89,7 +87,7 @@ class AuctionControllerTest {
   @DisplayName("return an auction by id")
   @Test
   public void returnAuctionGetByID() {
-    AuctionLot auctionApple = testData.auctionOne();
+    AuctionLot auctionApple = testData.auctionUser1Apple();
     given()
         .baseUri(uri)
         .header(AUTHORIZATION, testData.user1Token())
@@ -98,12 +96,12 @@ class AuctionControllerTest {
         .get("/auctions/{id}")
         .then()
         .statusCode(HttpStatus.OK.value())
-        .body("id", equalTo(testData.auctionOne().getId()))
-        .body("symbol", equalTo(testData.auctionOne().getSymbol()))
-        .body("owner", equalTo(testData.auctionOne().getOwner().getUsername()))
-        .body("quantity", equalTo(testData.auctionOne().getQuantity()))
-        .body("minPrice", equalTo((float) testData.auctionOne().getMinPrice()))
-        .body("status", equalTo(testData.auctionOne().getStatus().toString()));
+        .body("id", equalTo(testData.auctionUser1Apple().getId()))
+        .body("symbol", equalTo(testData.auctionUser1Apple().getSymbol()))
+        .body("owner", equalTo(testData.auctionUser1Apple().getOwner().getUsername()))
+        .body("quantity", equalTo(testData.auctionUser1Apple().getQuantity()))
+        .body("minPrice", equalTo((float) testData.auctionUser1Apple().getMinPrice()))
+        .body("status", equalTo(testData.auctionUser1Apple().getStatus().toString()));
   }
 
 
@@ -124,9 +122,9 @@ class AuctionControllerTest {
   @DisplayName("get all auctions when request all")
   @Test
   public void returnAllAuctions() {
-    var found1 = format("find { it.id == %s }.", testData.auctionOne().getId());
-    var found2 = format("find { it.id == %s }.", testData.auctionTwo().getId());
-    var found3 = format("find { it.id == %s }.", testData.auctionThree().getId());
+    var found1 = format("find { it.id == %s }.", testData.auctionUser1Apple().getId());
+    var found2 = format("find { it.id == %s }.", testData.auctionUser2MSFT().getId());
+    var found3 = format("find { it.id == %s }.", testData.auctionUser1FB().getId());
 
     given()
         .baseUri(uri)
@@ -137,23 +135,23 @@ class AuctionControllerTest {
         .statusCode(HttpStatus.OK.value())
         // body ( assertAll( ... ))
         // validate auction one
-        .body(found1 + "symbol", equalTo(testData.auctionOne().getSymbol()))
-        .body(found1 + "owner", equalTo(testData.auctionOne().getOwner().getUsername()))
-        .body(found1 + "quantity", equalTo(testData.auctionOne().getQuantity()))
-        .body(found1 + "minPrice", equalTo((float) testData.auctionOne().getMinPrice()))
-        .body(found1 + "status", equalTo(testData.auctionOne().getStatus().toString()))
+        .body(found1 + "symbol", equalTo(testData.auctionUser1Apple().getSymbol()))
+        .body(found1 + "owner", equalTo(testData.auctionUser1Apple().getOwner().getUsername()))
+        .body(found1 + "quantity", equalTo(testData.auctionUser1Apple().getQuantity()))
+        .body(found1 + "minPrice", equalTo((float) testData.auctionUser1Apple().getMinPrice()))
+        .body(found1 + "status", equalTo(testData.auctionUser1Apple().getStatus().toString()))
         // validate auction two
-        .body(found2 + "symbol", equalTo(testData.auctionTwo().getSymbol()))
-        .body(found2 + "owner", equalTo(testData.auctionTwo().getOwner().getUsername()))
-        .body(found2 + "quantity", equalTo(testData.auctionTwo().getQuantity()))
-        .body(found2 + "minPrice", equalTo((float) testData.auctionTwo().getMinPrice()))
-        .body(found2 + "status", equalTo(testData.auctionTwo().getStatus().toString()))
+        .body(found2 + "symbol", equalTo(testData.auctionUser2MSFT().getSymbol()))
+        .body(found2 + "owner", equalTo(testData.auctionUser2MSFT().getOwner().getUsername()))
+        .body(found2 + "quantity", equalTo(testData.auctionUser2MSFT().getQuantity()))
+        .body(found2 + "minPrice", equalTo((float) testData.auctionUser2MSFT().getMinPrice()))
+        .body(found2 + "status", equalTo(testData.auctionUser2MSFT().getStatus().toString()))
         // validate auction three
-        .body(found3 + "symbol", equalTo(testData.auctionThree().getSymbol()))
-        .body(found3 + "owner", equalTo(testData.auctionThree().getOwner().getUsername()))
-        .body(found3 + "quantity", equalTo(testData.auctionThree().getQuantity()))
-        .body(found3 + "minPrice", equalTo((float) testData.auctionThree().getMinPrice()))
-        .body(found3 + "status", equalTo(testData.auctionThree().getStatus().toString()));
+        .body(found3 + "symbol", equalTo(testData.auctionUser1FB().getSymbol()))
+        .body(found3 + "owner", equalTo(testData.auctionUser1FB().getOwner().getUsername()))
+        .body(found3 + "quantity", equalTo(testData.auctionUser1FB().getQuantity()))
+        .body(found3 + "minPrice", equalTo((float) testData.auctionUser1FB().getMinPrice()))
+        .body(found3 + "status", equalTo(testData.auctionUser1FB().getStatus().toString()));
 
   }
 
@@ -163,13 +161,13 @@ class AuctionControllerTest {
     var createBidRequest = new CreateBidRequest(
         testData.user2().getUsername(),
         50,
-        2.3
+        5.9
     );
 
     given()
         .baseUri(uri)
         .header(AUTHORIZATION, testData.user2Token())
-        .pathParam("id", testData.auctionTwo().getId())
+        .pathParam("id", testData.auctionUser1FB().getId())
         .contentType(ContentType.JSON)
         .body(createBidRequest)
         .when()
@@ -189,13 +187,13 @@ class AuctionControllerTest {
     var createBidRequest = new CreateBidRequest(
         testData.user1().getUsername(),
         50,
-        2.3
+        5.1
     );
 
     given()
         .baseUri(uri)
         .header(AUTHORIZATION, testData.user1Token())
-        .pathParam("id", testData.auctionTwo().getId())
+        .pathParam("id", testData.auctionUser1Apple().getId())
         .contentType(ContentType.JSON)
         .body(createBidRequest)
         .when()
@@ -231,7 +229,7 @@ class AuctionControllerTest {
   @Test
   public void getAllBidsForAnAuction() {
 
-    List<Bid> expectedBidsList = testData.auctionOne().getBids().stream()
+    List<Bid> expectedBidsList = testData.auctionUser1Apple().getBids().stream()
         .filter(bid -> bid.getUser().getUsername().equals(testData.user2().getUsername()))
         .toList();
 
@@ -241,7 +239,7 @@ class AuctionControllerTest {
         .map(Bid::getQuantity)
         .toList();
     List<Float> priceList = expectedBidsList.stream()
-        .map(bid -> (float)bid.getPrice())
+        .map(bid -> (float) bid.getPrice())
         .toList();
     List<String> stateList = expectedBidsList.stream()
         .map(bid -> bid.getState().toString())
@@ -250,7 +248,7 @@ class AuctionControllerTest {
     given()
         .baseUri(uri)
         .header(AUTHORIZATION, testData.user2Token())
-        .pathParam("id", testData.auctionOne().getId())
+        .pathParam("id", testData.auctionUser1Apple().getId())
         .when()
         .get("/auctions/{id}/bids/get-all")
         .then()
@@ -265,6 +263,23 @@ class AuctionControllerTest {
         );
   }
 
+  @DisplayName("return brief closing summary when close an auction")
+  @Test
+  public void returnBriefClosingSummaryWhenCloseAuction() {
+    given()
+        .baseUri(uri)
+        .header(AUTHORIZATION, testData.user1Token())
+        .pathParam("id", testData.auctionUser1Apple().getId())
+        .when()
+        .get("/auctions/{id}/close")
+        .then()
+        .statusCode(HttpStatus.OK.value())
+        .body(
+            "totalSoldQuantity", equalTo(125),
+            "totalRevenue", equalTo((float) 691.5),
+            "closingTime", containsString("2022")
+        );
+  }
 
 
 
