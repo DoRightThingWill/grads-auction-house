@@ -1,12 +1,11 @@
 package com.weareadaptive.auction.controller;
+
 import com.weareadaptive.auction.controller.dto.AuctionResponse;
 import com.weareadaptive.auction.controller.dto.BidResponse;
 import com.weareadaptive.auction.controller.dto.CreateAuctionRequest;
 import com.weareadaptive.auction.controller.dto.CreateBidRequest;
-import com.weareadaptive.auction.controller.dto.CreateUserRequest;
 import com.weareadaptive.auction.model.Bid;
 import com.weareadaptive.auction.service.AuctionLotService;
-import java.net.PortUnreachableException;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,20 +26,22 @@ import java.security.Principal;
 public class AuctionController {
 
   private final AuctionLotService auctionLotService;
-  public AuctionController (AuctionLotService auctionLotService){
+
+  public AuctionController(AuctionLotService auctionLotService) {
     this.auctionLotService = auctionLotService;
   }
 
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  AuctionResponse createAuction(@RequestBody @Valid CreateAuctionRequest request, Principal principal){
+  AuctionResponse createAuction(@RequestBody @Valid CreateAuctionRequest request,
+                                Principal principal) {
     String username = principal.getName();
     var createdAuction = auctionLotService.createAuction(
-      username,
-      request.symbol(),
-      request.quantity(),
-      request.minPrice()
+        username,
+        request.symbol(),
+        request.quantity(),
+        request.minPrice()
     );
 
     return new AuctionResponse(createdAuction);
@@ -48,13 +49,13 @@ public class AuctionController {
 
   @GetMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
-  AuctionResponse getAuctionByID(@PathVariable int id){
+  AuctionResponse getAuctionByID(@PathVariable int id) {
     return new AuctionResponse(auctionLotService.getAuctionByID(id));
   }
 
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
-  public List<AuctionResponse> getAllAuctions(){
+  public List<AuctionResponse> getAllAuctions() {
     return auctionLotService.getAllAuctions()
         .stream()
         .map(auctionLot -> new AuctionResponse(auctionLot))
@@ -63,7 +64,8 @@ public class AuctionController {
 
   @PostMapping("/{id}/bid")
   @ResponseStatus(HttpStatus.CREATED)
-  public BidResponse bidOnAuction(@RequestBody @Valid CreateBidRequest request, @PathVariable int id){
+  public BidResponse bidOnAuction(@RequestBody @Valid CreateBidRequest request,
+                                  @PathVariable int id) {
 
     Bid createdBid = auctionLotService.bidOnAuction(
         id,
@@ -72,6 +74,16 @@ public class AuctionController {
         request.price()
     );
     return new BidResponse(createdBid);
+  }
+
+  @GetMapping("/{id}/bids/get-all")
+  @ResponseStatus(HttpStatus.OK)
+  public List<BidResponse> getAllBidsForAnAuctions(@PathVariable int id, Principal principal){
+    String username = principal.getName();
+    return auctionLotService.getAuctionByID(id).getBids().stream()
+        .filter(bid -> bid.getUser().getUsername().equals(username))
+        .map(bid -> new BidResponse(bid))
+        .toList();
   }
 
 }

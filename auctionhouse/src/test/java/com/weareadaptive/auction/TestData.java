@@ -2,6 +2,7 @@ package com.weareadaptive.auction;
 
 import com.github.javafaker.Faker;
 import com.weareadaptive.auction.model.AuctionLot;
+import com.weareadaptive.auction.model.Bid;
 import com.weareadaptive.auction.model.User;
 import com.weareadaptive.auction.service.AuctionLotService;
 import com.weareadaptive.auction.service.UserService;
@@ -26,6 +27,12 @@ public class TestData {
   private AuctionLot auctionMSFT;
   private AuctionLot auctionFB;
 
+  private Bid bidOneUser2;
+  private Bid bidTwoUser2;
+  private Bid bidThreeUser2;
+  private Bid bidFourUser3;
+
+
   public TestData(UserService userService, AuctionLotService auctionLotService) {
     this.userService = userService;
     this.auctionLotService = auctionLotService;
@@ -42,6 +49,17 @@ public class TestData {
     auctionApple = createAuction(Stock.APPLE.symbol);
     auctionMSFT = createAuction(Stock.MICROSOFT.symbol);
     auctionFB = createAuction(Stock.META.symbol);
+
+    bidOneUser2 = bidOneUser2();
+    bidTwoUser2 = bidTwoUser2();
+    bidThreeUser2 = bidThreeUser2();
+    bidFourUser3 = bidFourUser3();
+
+    auctionApple.bid(bidOneUser2);
+    auctionApple.bid(bidTwoUser2);
+    auctionApple.bid(bidThreeUser2);
+    auctionApple.bid(bidFourUser3);
+
   }
 
   public User user1() {
@@ -76,6 +94,21 @@ public class TestData {
     return getToken(user4);
   }
 
+  public Bid bidOneUser2(){
+    return new Bid(user2, 20, 4.2);
+  }
+  public Bid bidTwoUser2(){
+    return new Bid(user2, 30, 4.5);
+  }
+
+  public Bid bidThreeUser2(){
+    return new Bid(user2, 45, 5.9);
+  }
+
+  public Bid bidFourUser3(){
+    return new Bid(user3, 30, 6.9);
+  }
+
   public AuctionLot auctionOne(){
     return auctionApple;
   }
@@ -85,6 +118,7 @@ public class TestData {
   public AuctionLot auctionThree(){
     return auctionFB;
   }
+
 
   public AuctionLot createAuction(String symbol){
     return auctionLotService.createAuction(

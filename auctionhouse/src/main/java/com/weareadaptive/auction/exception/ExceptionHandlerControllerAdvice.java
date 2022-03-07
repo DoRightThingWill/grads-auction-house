@@ -45,4 +45,13 @@ public class ExceptionHandlerControllerAdvice {
         NOT_FOUND);
   }
 
+  @ExceptionHandler(BidOnOwnAuction.class)
+  public ResponseEntity<Object> handleBidOnOwnAuction(BidOnOwnAuction ex) {
+    var headers = new HttpHeaders();
+    headers.setContentType(APPLICATION_PROBLEM_JSON);
+    return new ResponseEntity<>(
+        new Problem(BAD_REQUEST.value(), BAD_REQUEST.name(), ex.getMessage()), headers,
+        BAD_REQUEST);
+  }
+
 }
