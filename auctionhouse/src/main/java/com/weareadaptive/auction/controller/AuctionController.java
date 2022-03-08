@@ -40,9 +40,8 @@ public class AuctionController {
   @ResponseStatus(HttpStatus.CREATED)
   AuctionResponse createAuction(@RequestBody @Valid CreateAuctionRequest request,
                                 Principal principal) {
-    String username = principal.getName();
     var createdAuction =
-        auctionLotService.createAuction(username, request.symbol(), request.quantity(),
+        auctionLotService.createAuction(principal.getName(), request.symbol(), request.quantity(),
             request.minPrice());
 
     return new AuctionResponse(createdAuction);
@@ -90,9 +89,9 @@ public class AuctionController {
   @GetMapping("/{id}/winning-bids")
   @ResponseStatus(HttpStatus.OK)
   public List<WinningBidsResponse> getWinningBids(@PathVariable int id, Principal principal) {
-    String username = principal.getName();
-    var winningBids = auctionLotService.getWinningBids(id, username);
-    return winningBids.stream().map(WinningBidsResponse::new).toList();
+
+    return auctionLotService.getWinningBids(id, principal.getName()).stream()
+        .map(ResponseMapper::winningBidsResponse).toList();
   }
 
   @GetMapping("/{id}/close-summary")

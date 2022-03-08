@@ -171,6 +171,11 @@ public class AuctionLot implements Entity {
         .toList();
   }
 
+  public Bid lastBid() {
+    int bidsQuantity = bids.size();
+    return bids.get(bidsQuantity - 1);
+  }
+
   @Override
   public String toString() {
     return "AuctionLot{"

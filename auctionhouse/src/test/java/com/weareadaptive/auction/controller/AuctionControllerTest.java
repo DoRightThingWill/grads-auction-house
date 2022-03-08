@@ -206,7 +206,7 @@ class AuctionControllerTest {
         .when()
         .post("/auctions/{id}/bid")
         .then()
-        .statusCode(BAD_REQUEST.value());
+        .statusCode(UNAUTHORIZED.value());
   }
 
 

@@ -1,6 +1,5 @@
 package com.weareadaptive.auction.service;
 
-import com.weareadaptive.auction.exception.BidOnOwnAuction;
 import com.weareadaptive.auction.exception.ModelNotFoundException;
 import com.weareadaptive.auction.exception.NotAuthorizedException;
 import com.weareadaptive.auction.model.AuctionLot;
@@ -49,23 +48,18 @@ public record AuctionLotService(AuctionState auctionState, UserState userState) 
     return auctionState.stream().toList();
   }
 
-  public Bid bidOnAuction(int auctionId, String owner, int quantity, double price) {
-    AuctionLot currentAuction = getAuctionById(auctionId);
-
-    if (userState.getByUsername(owner).isEmpty()) {
-      throw new BusinessException("can not find user by username");
-    }
-    User bidder = userState.getByUsername(owner).get();
-
-
-    if (currentAuction.getOwner().getUsername().equals(owner)) {
-      throw new BidOnOwnAuction("You can not bid on your own auction");
+  public Bid bidOnAuction(int id, String owner, int quantity, double price) {
+    AuctionLot auction = getAuctionById(id);
+    if (auction.getOwner().getUsername().equals(owner)) {
+      throw new NotAuthorizedException("not authorized to bid on this auction");
     }
 
+    User bidder =
+        userState.getByUsername(owner).orElseThrow(() -> new RuntimeException("can not find user"));
 
     Bid newBid = new Bid(bidder, quantity, price);
-    currentAuction.bid(newBid);
-    return newBid;
+    auction.bid(newBid);
+    return auction.lastBid();
   }
 
   public List<WinningBid> getWinningBids(int id, String username) {
