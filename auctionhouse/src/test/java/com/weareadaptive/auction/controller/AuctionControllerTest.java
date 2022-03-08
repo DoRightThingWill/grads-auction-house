@@ -44,13 +44,21 @@ class AuctionControllerTest {
   public void shouldReturnAuctionIfCreated() {
     var createAuctionRequest = new CreateAuctionRequest("ADAPT", 2.23, 200);
 
-    given().baseUri(uri).header(AUTHORIZATION, testData.user1Token()).contentType(ContentType.JSON)
-        .body(createAuctionRequest).when().post("/auctions").then()
-        .statusCode(HttpStatus.CREATED.value()).body("id", greaterThan(0))
+    //@formatter:off
+    given()
+        .baseUri(uri)
+        .header(AUTHORIZATION, testData.user1Token()).contentType(ContentType.JSON)
+        .body(createAuctionRequest)
+    .when()
+        .post("/auctions")
+    .then()
+        .statusCode(HttpStatus.CREATED.value())
+        .body("id", greaterThan(0))
         .body("owner", equalTo(testData.user1().getUsername()))
         .body("symbol", equalTo(createAuctionRequest.symbol()))
         .body("minPrice", equalTo((float) createAuctionRequest.minPrice()))
         .body("quantity", equalTo(createAuctionRequest.quantity()));
+    //@formatter:on
   }
 
 
@@ -58,23 +66,36 @@ class AuctionControllerTest {
   @Test
   public void returnAuctionGetByID() {
     AuctionLot auctionApple = testData.auctionUser1Apple();
-    given().baseUri(uri).header(AUTHORIZATION, testData.user1Token())
-        .pathParam("id", auctionApple.getId()).when().get("/auctions/{id}").then()
+    //@formatter:off
+    given()
+        .baseUri(uri)
+        .header(AUTHORIZATION, testData.user1Token())
+        .pathParam("id", auctionApple.getId())
+    .when().get("/auctions/{id}")
+    .then()
         .statusCode(HttpStatus.OK.value()).body("id", equalTo(testData.auctionUser1Apple().getId()))
         .body("symbol", equalTo(testData.auctionUser1Apple().getSymbol()))
         .body("owner", equalTo(testData.auctionUser1Apple().getOwner().getUsername()))
         .body("quantity", equalTo(testData.auctionUser1Apple().getQuantity()))
         .body("minPrice", equalTo((float) testData.auctionUser1Apple().getMinPrice()))
         .body("status", equalTo(testData.auctionUser1Apple().getStatus().toString()));
+    //@formatter:on
   }
 
 
   @DisplayName("get auction return bad request if ID not exist")
   @Test
   public void returnBadRequestIfAuctionIDNotExists() {
-    given().baseUri(uri).header(AUTHORIZATION, testData.user1Token())
-        .pathParam("id", INVALID_AUCTION_ID).when().get("/auctions/{id}").then()
+    //@formatter:off
+    given()
+        .baseUri(uri)
+        .header(AUTHORIZATION, testData.user1Token())
+        .pathParam("id", INVALID_AUCTION_ID)
+    .when()
+        .get("/auctions/{id}")
+    .then()
         .statusCode(HttpStatus.NOT_FOUND.value());
+    //@formatter:on
   }
 
 
@@ -85,7 +106,13 @@ class AuctionControllerTest {
     var found2 = format("find { it.id == %s }.", testData.auctionUser2MSFT().getId());
     var found3 = format("find { it.id == %s }.", testData.auctionUser1FB().getId());
 
-    given().baseUri(uri).header(AUTHORIZATION, testData.user1Token()).when().get("/auctions").then()
+    //@formatter:off
+    given()
+        .baseUri(uri)
+        .header(AUTHORIZATION, testData.user1Token())
+    .when()
+        .get("/auctions")
+    .then()
         .statusCode(HttpStatus.OK.value())
         // body ( assertAll( ... ))
         // validate auction one
@@ -106,21 +133,29 @@ class AuctionControllerTest {
         .body(found3 + "quantity", equalTo(testData.auctionUser1FB().getQuantity()))
         .body(found3 + "minPrice", equalTo((float) testData.auctionUser1FB().getMinPrice()))
         .body(found3 + "status", equalTo(testData.auctionUser1FB().getStatus().toString()));
-
+    //@formatter:on
   }
 
   @DisplayName("return bid information when successfully bid an auctions")
   @Test
   public void returnBidWhenBidAnAuctions() {
     var createBidRequest = new CreateBidRequest(testData.user2().getUsername(), 50, 5.9);
-
-    given().baseUri(uri).header(AUTHORIZATION, testData.user2Token())
-        .pathParam("id", testData.auctionUser1FB().getId()).contentType(ContentType.JSON)
-        .body(createBidRequest).when().post("/auctions/{id}/bid").then()
-        .statusCode(HttpStatus.CREATED.value()).body("owner", equalTo(createBidRequest.owner()))
+    //@formatter:off
+    given()
+        .baseUri(uri)
+        .header(AUTHORIZATION, testData.user2Token())
+        .pathParam("id", testData.auctionUser1FB()
+        .getId()).contentType(ContentType.JSON)
+        .body(createBidRequest)
+    .when()
+        .post("/auctions/{id}/bid")
+    .then()
+        .statusCode(HttpStatus.CREATED.value())
+        .body("owner", equalTo(createBidRequest.owner()))
         .body("quantity", equalTo(createBidRequest.quantity()))
         .body("price", equalTo((float) createBidRequest.price()))
         .body("state", equalTo(Bid.State.PENDING.toString()));
+    //@formatter:on
   }
 
 
@@ -128,11 +163,16 @@ class AuctionControllerTest {
   @Test
   public void returnBadRequestWhenBidOnOwnAuction() {
     var createBidRequest = new CreateBidRequest(testData.user1().getUsername(), 50, 5.1);
-
-    given().baseUri(uri).header(AUTHORIZATION, testData.user1Token())
+    //@formatter:off
+    given()
+        .baseUri(uri)
+        .header(AUTHORIZATION, testData.user1Token())
         .pathParam("id", testData.auctionUser1Apple().getId()).contentType(ContentType.JSON)
-        .body(createBidRequest).when().post("/auctions/{id}/bid").then()
+        .body(createBidRequest)
+    .when().post("/auctions/{id}/bid")
+        .then()
         .statusCode(UNAUTHORIZED.value());
+    //@formatter:on
   }
 
 
@@ -141,10 +181,18 @@ class AuctionControllerTest {
   @Test
   public void return404WhenBiddingButAuctionNotFound() {
     var createBidRequest = new CreateBidRequest(testData.user2().getUsername(), 50, 2.3);
-
-    given().baseUri(uri).header(AUTHORIZATION, testData.user2Token())
-        .pathParam("id", INVALID_AUCTION_ID).contentType(ContentType.JSON).body(createBidRequest)
-        .when().post("/auctions/{id}/bid").then().statusCode(HttpStatus.NOT_FOUND.value());
+    //@formatter:off
+    given()
+        .baseUri(uri)
+        .header(AUTHORIZATION, testData.user2Token())
+        .pathParam("id", INVALID_AUCTION_ID)
+        .contentType(ContentType.JSON)
+        .body(createBidRequest)
+    .when()
+        .post("/auctions/{id}/bid")
+    .then()
+        .statusCode(HttpStatus.NOT_FOUND.value());
+    //@formatter:on
   }
 
   @DisplayName("get all bids for an auctions for this user")
@@ -152,14 +200,25 @@ class AuctionControllerTest {
   public void getAllBidsForAnAuction() {
 
     List<Bid> bids = testData.auctionUser1Apple().getBids();
-
-    given().baseUri(uri).header(AUTHORIZATION, testData.user1Token())
-        .pathParam("id", testData.auctionUser1Apple().getId()).when().get("/auctions/{id}/bids")
-        .then().statusCode(HttpStatus.OK.value())
-        .body("owner", equalTo(bids.stream().map(b -> b.getUser().getUsername()).toList()),
-            "quantity", equalTo(bids.stream().map(Bid::getQuantity).toList()), "price",
-            equalTo(bids.stream().map(b -> (float) b.getPrice()).toList()), "state",
+    //@formatter:off
+    given()
+        .baseUri(uri)
+        .header(AUTHORIZATION, testData.user1Token())
+        .pathParam("id", testData.auctionUser1Apple().getId())
+    .when().
+        get("/auctions/{id}/bids")
+    .then()
+        .statusCode(HttpStatus.OK.value())
+        .body(
+            "owner",
+            equalTo(bids.stream().map(b -> b.getUser().getUsername()).toList()),
+            "quantity",
+            equalTo(bids.stream().map(Bid::getQuantity).toList()),
+            "price",
+            equalTo(bids.stream().map(b -> (float) b.getPrice()).toList()),
+            "state",
             equalTo(bids.stream().map(b -> b.getState().toString()).toList()));
+    //@formatter:on
   }
 
   @DisplayName("return closing summary when close an auction")
@@ -169,24 +228,43 @@ class AuctionControllerTest {
     List<WinningBid> bids = testData.auctionUser1FB().getClosingSummary().winningBids();
     ClosingSummary summary = testData.auctionUser1FB().getClosingSummary();
 
-    given().baseUri(uri).header(AUTHORIZATION, testData.user1Token())
-        .pathParam("id", testData.auctionUser1Apple().getId()).when().get("/auctions/{id}/close")
-        .then().statusCode(HttpStatus.OK.value()).body("winningBids.settledQuantity",
+    //@formatter:off
+    given()
+        .baseUri(uri)
+        .header(AUTHORIZATION, testData.user1Token())
+        .pathParam("id", testData.auctionUser1Apple().getId())
+    .when()
+        .put("/auctions/{id}/close")
+    .then()
+        .statusCode(HttpStatus.OK.value())
+        .body("winningBids.settledQuantity",
             equalTo(bids.stream().map(b -> b.originalBid().getWinQuantity()).toList()),
             "winningBids.originalQuantity",
             equalTo(bids.stream().map(b -> b.originalBid().getQuantity()).toList()),
             "winningBids.price",
             equalTo(bids.stream().map(b -> (float) b.originalBid().getPrice()).toList()),
-            "totalSoldQuantity", equalTo(summary.totalSoldQuantity()), "totalRevenue",
-            equalTo(summary.totalRevenue().floatValue()), "closingTime", containsString("2022"));
+            "totalSoldQuantity",
+            equalTo(summary.totalSoldQuantity()),
+            "totalRevenue",
+            equalTo(summary.totalRevenue().floatValue()),
+            "closingTime", containsString("2022"));
+    //@formatter:on
+
   }
 
   @DisplayName("return not authorized when close auction not belonging to user")
   @Test
   public void returnBadRequestOnceCloseOthersAuction() {
-    given().baseUri(uri).header(AUTHORIZATION, testData.user2Token())
-        .pathParam("id", testData.auctionUser1Apple().getId()).when().get("/auctions/{id}/close")
-        .then().statusCode(UNAUTHORIZED.value());
+    //@formatter:off
+    given()
+        .baseUri(uri)
+        .header(AUTHORIZATION, testData.user2Token())
+        .pathParam("id", testData.auctionUser1Apple().getId())
+    .when()
+        .put("/auctions/{id}/close")
+    .then()
+        .statusCode(UNAUTHORIZED.value());
+    //@formatter:on
   }
 
 
@@ -197,17 +275,28 @@ class AuctionControllerTest {
     ClosingSummary summary = testData.auctionUser1Tesla().getClosingSummary();
     List<WinningBid> bids = summary.winningBids();
 
-    given().baseUri(uri).header(AUTHORIZATION, testData.user1Token())
-        .pathParam("id", testData.auctionUser1Tesla().getId()).when()
-        .get("/auctions/{id}/close-summary").then().statusCode(HttpStatus.OK.value())
+    //@formatter:off
+    given()
+        .baseUri(uri)
+        .header(AUTHORIZATION, testData.user1Token())
+        .pathParam("id", testData.auctionUser1Tesla().getId())
+    .when()
+        .get("/auctions/{id}/close-summary")
+    .then()
+        .statusCode(HttpStatus.OK.value())
         .body("winningBids.settledQuantity",
             equalTo(bids.stream().map(b -> b.originalBid().getWinQuantity()).toList()),
             "winningBids.originalQuantity",
             equalTo(bids.stream().map(b -> b.originalBid().getQuantity()).toList()),
             "winningBids.price",
             equalTo(bids.stream().map(b -> (float) b.originalBid().getPrice()).toList()),
-            "totalSoldQuantity", equalTo(summary.totalSoldQuantity()), "totalRevenue",
-            equalTo(summary.totalRevenue().floatValue()), "closingTime", containsString("2022"));
+            "totalSoldQuantity",
+            equalTo(summary.totalSoldQuantity()),
+            "totalRevenue",
+            equalTo(summary.totalRevenue().floatValue()),
+            "closingTime", containsString("2022"));
+    //@formatter:on
+
   }
 
 
