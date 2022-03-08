@@ -1,11 +1,12 @@
 package com.weareadaptive.auction.controller;
 
-import com.weareadaptive.auction.controller.dto.AuctionResponse;
-import com.weareadaptive.auction.controller.dto.BidResponse;
-import com.weareadaptive.auction.controller.dto.BriefClosingSummary;
-import com.weareadaptive.auction.controller.dto.CreateAuctionRequest;
-import com.weareadaptive.auction.controller.dto.CreateBidRequest;
-import com.weareadaptive.auction.controller.dto.WinningBidsResponse;
+import com.weareadaptive.auction.controller.dto.ResponseMapper;
+import com.weareadaptive.auction.controller.dto.response.AuctionResponse;
+import com.weareadaptive.auction.controller.dto.response.BidResponse;
+import com.weareadaptive.auction.controller.dto.response.BriefClosingSummary;
+import com.weareadaptive.auction.controller.dto.request.CreateAuctionRequest;
+import com.weareadaptive.auction.controller.dto.request.CreateBidRequest;
+import com.weareadaptive.auction.controller.dto.response.WinningBidsResponse;
 import com.weareadaptive.auction.model.AuctionLot;
 import com.weareadaptive.auction.model.Bid;
 import com.weareadaptive.auction.service.AuctionLotService;
@@ -76,16 +77,16 @@ public class AuctionController {
         request.quantity(),
         request.price()
     );
-    return new BidResponse(createdBid);
+    return ResponseMapper.bidResponse(createdBid);
   }
 
-  @GetMapping("/{id}/bids/get-all")
+  @GetMapping("/{id}/bids")
   @ResponseStatus(HttpStatus.OK)
   public List<BidResponse> getAllBidsForAnAuctions(@PathVariable int id, Principal principal) {
-    String username = principal.getName();
-    return auctionLotService.getAuctionById(id).getBids().stream()
-        .filter(bid -> bid.getUser().getUsername().equals(username))
-        .map(BidResponse::new)
+
+    return auctionLotService.getAllBidsFromAuction(principal, id)
+        .stream()
+        .map(ResponseMapper::bidResponse)
         .toList();
   }
 
@@ -109,6 +110,4 @@ public class AuctionController {
         .map(WinningBidsResponse::new)
         .toList();
   }
-
-
 }

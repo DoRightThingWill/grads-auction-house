@@ -1,8 +1,8 @@
 package com.weareadaptive.auction.controller;
 
-import com.weareadaptive.auction.controller.dto.CreateUserRequest;
-import com.weareadaptive.auction.controller.dto.UpdateUserRequest;
-import com.weareadaptive.auction.controller.dto.UserResponse;
+import com.weareadaptive.auction.controller.dto.request.CreateUserRequest;
+import com.weareadaptive.auction.controller.dto.request.UpdateUserRequest;
+import com.weareadaptive.auction.controller.dto.response.UserResponse;
 import com.weareadaptive.auction.model.User;
 import com.weareadaptive.auction.service.UserService;
 import java.util.List;

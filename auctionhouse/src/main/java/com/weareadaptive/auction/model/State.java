@@ -34,7 +34,7 @@ public class State<T extends Entity> {
     this.currentId = id;
   }
 
-  public Optional getModelByID(int id) {
+  public Optional<T> getModelByID(int id) {
     if(entities.containsKey(id)){
       return Optional.of(entities.get(id));
     } else {

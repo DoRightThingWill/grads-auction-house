@@ -10,15 +10,17 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.OK;
 
 import com.weareadaptive.auction.TestData;
-import com.weareadaptive.auction.controller.dto.CreateAuctionRequest;
-import com.weareadaptive.auction.controller.dto.CreateBidRequest;
+import com.weareadaptive.auction.controller.dto.request.CreateAuctionRequest;
+import com.weareadaptive.auction.controller.dto.request.CreateBidRequest;
 import com.weareadaptive.auction.model.AuctionLot;
 import com.weareadaptive.auction.model.Bid;
+import com.weareadaptive.auction.model.User;
 import io.restassured.http.ContentType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -233,37 +235,21 @@ class AuctionControllerTest {
   @Test
   public void getAllBidsForAnAuction() {
 
-    List<Bid> expectedBidsList = testData.auctionUser1Apple().getBids().stream()
-        .filter(bid -> bid.getUser().getUsername().equals(testData.user2().getUsername()))
-        .toList();
-
-    List<String> userList =
-        expectedBidsList.stream().map(bid -> bid.getUser().getUsername()).toList();
-    List<Integer> quantityList = expectedBidsList.stream()
-        .map(Bid::getQuantity)
-        .toList();
-    List<Float> priceList = expectedBidsList.stream()
-        .map(bid -> (float) bid.getPrice())
-        .toList();
-    List<String> stateList = expectedBidsList.stream()
-        .map(bid -> bid.getState().toString())
-        .toList();
+    List<Bid> bids = testData.auctionUser1Apple().getBids();
 
     given()
         .baseUri(uri)
-        .header(AUTHORIZATION, testData.user2Token())
+        .header(AUTHORIZATION, testData.user1Token())
         .pathParam("id", testData.auctionUser1Apple().getId())
         .when()
-        .get("/auctions/{id}/bids/get-all")
+        .get("/auctions/{id}/bids")
         .then()
         .statusCode(HttpStatus.OK.value())
-        // body ( assertAll( ... ))
-        // validate bid one
         .body(
-            "owner", equalTo(userList),
-            "quantity", equalTo(quantityList),
-            "price", equalTo(priceList),
-            "state", equalTo(stateList)
+            "owner", equalTo(bids.stream().map(b -> b.getUser().getUsername()).toList()),
+            "quantity", equalTo(bids.stream().map(Bid::getQuantity).toList()),
+            "price", equalTo(bids.stream().map(b -> (float) b.getPrice()).toList()),
+            "state", equalTo(bids.stream().map(b -> b.getState().toString()).toList())
         );
   }
 
@@ -296,12 +282,12 @@ class AuctionControllerTest {
         .get("/auctions/{id}/close")
         .then()
         .statusCode(BAD_REQUEST.value())
-        ;
+    ;
   }
 
   @DisplayName("get winning bids from a close auction")
   @Test
-  public void returnWinningBidsListFromClosedAuction(){
+  public void returnWinningBidsListFromClosedAuction() {
 
 
     Bid bid1User1 = new Bid(testData.user1(), 20, 15);
@@ -324,12 +310,12 @@ class AuctionControllerTest {
 
 
     testData.auctionUser2MSFT().getClosingSummary().winningBids()
-                .forEach(winningBid -> {
-                  expectedResult.get("settledQuantity").add(winningBid.originalBid().getWinQuantity());
-                  expectedResult.get("username").add(winningBid.originalBid().getUser().getUsername());
-                  expectedResult.get("originalQuantity").add(winningBid.originalBid().getQuantity());
-                  expectedResult.get("price").add((float)winningBid.originalBid().getPrice());
-                });
+        .forEach(winningBid -> {
+          expectedResult.get("settledQuantity").add(winningBid.originalBid().getWinQuantity());
+          expectedResult.get("username").add(winningBid.originalBid().getUser().getUsername());
+          expectedResult.get("originalQuantity").add(winningBid.originalBid().getQuantity());
+          expectedResult.get("price").add((float) winningBid.originalBid().getPrice());
+        });
 
     given()
         .baseUri(uri)
@@ -344,7 +330,7 @@ class AuctionControllerTest {
             "username", equalTo(expectedResult.get("username")),
             "originalQuantity", equalTo(expectedResult.get("originalQuantity")),
             "price", equalTo(expectedResult.get("price"))
-            )
+        )
     ;
   }
 

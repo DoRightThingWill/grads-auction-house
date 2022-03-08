@@ -10,6 +10,7 @@ import com.weareadaptive.auction.model.KeyAlreadyExistsException;
 import com.weareadaptive.auction.model.User;
 import com.weareadaptive.auction.model.UserState;
 import com.weareadaptive.auction.model.WinningBid;
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
@@ -38,11 +39,8 @@ public record AuctionLotService(AuctionState auctionState, UserState userState) 
 
 
   public AuctionLot getAuctionById(int id) {
-    Optional<AuctionLot> auctionOptional = auctionState.getModelByID(id);
-    if (auctionOptional.isEmpty()) {
-      throw new ModelNotFoundException();
-    }
-    return auctionOptional.get();
+    return auctionState.getModelByID(id).orElseThrow(ModelNotFoundException::new);
+
   }
 
   public List<AuctionLot> getAllAuctions() {
@@ -77,5 +75,14 @@ public record AuctionLotService(AuctionState auctionState, UserState userState) 
 
     return targetAuction.getClosingSummary().winningBids();
   }
+
+  public List<Bid> getAllBidsFromAuction(Principal principal, int id) {
+    AuctionLot auction = getAuctionById(id);
+    if(!auction.getOwner().getUsername().equals(principal.getName())){
+      throw new RuntimeException("not authorized to do this");
+    }
+    return auction.getBids();
+  }
+
 
 }

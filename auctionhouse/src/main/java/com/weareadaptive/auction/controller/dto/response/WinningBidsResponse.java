@@ -1,4 +1,4 @@
-package com.weareadaptive.auction.controller.dto;
+package com.weareadaptive.auction.controller.dto.response;
 
 import com.weareadaptive.auction.model.WinningBid;
 
