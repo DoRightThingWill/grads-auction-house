@@ -4,8 +4,9 @@ import com.weareadaptive.auction.exception.ModelNotFoundException;
 import com.weareadaptive.auction.model.KeyAlreadyExistsException;
 import com.weareadaptive.auction.model.User;
 import com.weareadaptive.auction.model.UserState;
-import org.springframework.stereotype.Service;
 import java.util.List;
+import org.springframework.stereotype.Service;
+
 
 @Service
 public class UserService {
@@ -16,28 +17,25 @@ public class UserService {
   }
 
 
-
   public User create(String username, String password, String firstName, String lastName,
                      String organisation) {
 
-    if(userState.hasUser(username)){
+    if (userState.hasUser(username)) {
       throw new KeyAlreadyExistsException("username already exist");
     }
 
-    var userID = userState.nextId();
-    var user = new User(userID, username, password, firstName, lastName, organisation);
+    var userId = userState.nextId();
+    var user = new User(userId, username, password, firstName, lastName, organisation);
     userState.add(user);
 
     return user;
-//    throw new UnsupportedOperationException();
   }
 
-  public User getUserByID(int id){
-    return userState.getUserByID(id)
-            .orElseThrow(ModelNotFoundException::new);
+  public User getUserById(int id) {
+    return userState.getUserById(id).orElseThrow(ModelNotFoundException::new);
   }
 
-  public List<User> getAllUsers(){
+  public List<User> getAllUsers() {
     return userState.stream().toList();
   }
 

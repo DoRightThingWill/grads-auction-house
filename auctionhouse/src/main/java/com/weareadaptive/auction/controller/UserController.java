@@ -39,26 +39,26 @@ public class UserController {
   @ResponseStatus(HttpStatus.CREATED)
   UserResponse create(@RequestBody @Valid CreateUserRequest createUserRequest) {
     var createdUser = userService.create(
-       createUserRequest.username(),
-       createUserRequest.password(),
-       createUserRequest.firstName(),
-       createUserRequest.lastName(),
-       createUserRequest.organisation());
+        createUserRequest.username(),
+        createUserRequest.password(),
+        createUserRequest.firstName(),
+        createUserRequest.lastName(),
+        createUserRequest.organisation());
     return new UserResponse(createdUser);
   }
 
   @GetMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
   UserResponse findUserById(@PathVariable int id) {
-    return new UserResponse(userService.getUserByID(id));
+    return new UserResponse(userService.getUserById(id));
   }
 
   @PutMapping("{id}")
   @ResponseStatus(HttpStatus.OK)
   UserResponse updateUser(
-    @RequestBody @Valid UpdateUserRequest updateUserRequest,
-    @PathVariable int id) {
-    User foundUser = userService.getUserByID(id);
+      @RequestBody @Valid UpdateUserRequest updateUserRequest,
+      @PathVariable int id) {
+    User foundUser = userService.getUserById(id);
     foundUser.setFirstName(updateUserRequest.firstName());
     foundUser.setLastName(updateUserRequest.lastName());
     foundUser.setOrganisation(updateUserRequest.organisation());
@@ -68,14 +68,14 @@ public class UserController {
   @PutMapping("/{id}/block")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   void blockUser(@PathVariable int id) {
-    User foundUser = userService.getUserByID(id);
+    User foundUser = userService.getUserById(id);
     foundUser.block();
   }
 
   @PutMapping("/{id}/unblock")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   void unblockUser(@PathVariable int id) {
-    User foundUser = userService.getUserByID(id);
+    User foundUser = userService.getUserById(id);
     foundUser.unblock();
   }
 

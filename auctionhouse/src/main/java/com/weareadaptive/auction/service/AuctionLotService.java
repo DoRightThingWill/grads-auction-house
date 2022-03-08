@@ -2,10 +2,12 @@ package com.weareadaptive.auction.service;
 
 import com.weareadaptive.auction.exception.BidOnOwnAuction;
 import com.weareadaptive.auction.exception.ModelNotFoundException;
+import com.weareadaptive.auction.exception.NotAuthorizedException;
 import com.weareadaptive.auction.model.AuctionLot;
 import com.weareadaptive.auction.model.AuctionState;
 import com.weareadaptive.auction.model.Bid;
 import com.weareadaptive.auction.model.BusinessException;
+import com.weareadaptive.auction.model.ClosingSummary;
 import com.weareadaptive.auction.model.KeyAlreadyExistsException;
 import com.weareadaptive.auction.model.User;
 import com.weareadaptive.auction.model.UserState;
@@ -39,7 +41,7 @@ public record AuctionLotService(AuctionState auctionState, UserState userState) 
 
 
   public AuctionLot getAuctionById(int id) {
-    return auctionState.getModelByID(id).orElseThrow(ModelNotFoundException::new);
+    return auctionState.getModelById(id).orElseThrow(ModelNotFoundException::new);
 
   }
 
@@ -78,10 +80,27 @@ public record AuctionLotService(AuctionState auctionState, UserState userState) 
 
   public List<Bid> getAllBidsFromAuction(Principal principal, int id) {
     AuctionLot auction = getAuctionById(id);
-    if(!auction.getOwner().getUsername().equals(principal.getName())){
-      throw new RuntimeException("not authorized to do this");
+    if (!auction.getOwner().getUsername().equals(principal.getName())) {
+      throw new NotAuthorizedException("not authorized to get info from this auction");
     }
     return auction.getBids();
+  }
+
+  public AuctionLot closeAuction(Principal principal, int id) {
+    AuctionLot auction = getAuctionById(id);
+    if (!auction.getOwner().getUsername().equals(principal.getName())) {
+      throw new NotAuthorizedException("not authorized to close this auction");
+    }
+    auction.close();
+    return auction;
+  }
+
+  public ClosingSummary getClosSummary(Principal principal, int id) {
+    AuctionLot auction = getAuctionById(id);
+    if (!auction.getOwner().getUsername().equals(principal.getName())) {
+      throw new NotAuthorizedException("not authorized to close this auction");
+    }
+    return auction.getClosingSummary();
   }
 
 

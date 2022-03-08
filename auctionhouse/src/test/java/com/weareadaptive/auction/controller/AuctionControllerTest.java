@@ -8,19 +8,20 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 import com.weareadaptive.auction.TestData;
 import com.weareadaptive.auction.controller.dto.request.CreateAuctionRequest;
 import com.weareadaptive.auction.controller.dto.request.CreateBidRequest;
 import com.weareadaptive.auction.model.AuctionLot;
 import com.weareadaptive.auction.model.Bid;
-import com.weareadaptive.auction.model.User;
+import com.weareadaptive.auction.model.ClosingSummary;
+import com.weareadaptive.auction.model.WinningBid;
 import io.restassured.http.ContentType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -253,9 +254,13 @@ class AuctionControllerTest {
         );
   }
 
-  @DisplayName("return brief closing summary when close an auction")
+  @DisplayName("return closing summary when close an auction")
   @Test
   public void returnBriefClosingSummaryWhenCloseAuction() {
+    testData.auctionUser1FB().close();
+    List<WinningBid> bids = testData.auctionUser1FB().getClosingSummary().winningBids();
+    ClosingSummary summary = testData.auctionUser1FB().getClosingSummary();
+
     given()
         .baseUri(uri)
         .header(AUTHORIZATION, testData.user1Token())
@@ -265,13 +270,19 @@ class AuctionControllerTest {
         .then()
         .statusCode(HttpStatus.OK.value())
         .body(
-            "totalSoldQuantity", equalTo(125),
-            "totalRevenue", equalTo((float) 691.5),
+            "winningBids.settledQuantity",
+            equalTo(bids.stream().map(b -> b.originalBid().getWinQuantity()).toList()),
+            "winningBids.originalQuantity",
+            equalTo(bids.stream().map(b -> b.originalBid().getQuantity()).toList()),
+            "winningBids.price",
+            equalTo(bids.stream().map(b -> (float)b.originalBid().getPrice()).toList()),
+            "totalSoldQuantity", equalTo(summary.totalSoldQuantity()),
+            "totalRevenue", equalTo(summary.totalRevenue().floatValue()),
             "closingTime", containsString("2022")
         );
   }
 
-  @DisplayName("return brief closing summary when close an auction")
+  @DisplayName("return not authorized when close auction not belonging to user")
   @Test
   public void returnBadRequestOnceCloseOthersAuction() {
     given()
@@ -281,7 +292,7 @@ class AuctionControllerTest {
         .when()
         .get("/auctions/{id}/close")
         .then()
-        .statusCode(BAD_REQUEST.value())
+        .statusCode(UNAUTHORIZED.value())
     ;
   }
 
@@ -330,8 +341,35 @@ class AuctionControllerTest {
             "username", equalTo(expectedResult.get("username")),
             "originalQuantity", equalTo(expectedResult.get("originalQuantity")),
             "price", equalTo(expectedResult.get("price"))
-        )
-    ;
+        );
+  }
+
+  @DisplayName("get close summary from a closed auction")
+  @Test
+  public void returnClosingSummaryResponseFromClosedAuction(){
+    testData.auctionUser1Tesla().close();
+    ClosingSummary summary = testData.auctionUser1Tesla().getClosingSummary();
+    List<WinningBid> bids = summary.winningBids();
+
+    given()
+        .baseUri(uri)
+        .header(AUTHORIZATION, testData.user1Token())
+        .pathParam("id", testData.auctionUser1Tesla().getId())
+        .when()
+        .get("/auctions/{id}/close-summary")
+        .then()
+        .statusCode(HttpStatus.OK.value())
+        .body(
+            "winningBids.settledQuantity",
+            equalTo(bids.stream().map(b -> b.originalBid().getWinQuantity()).toList()),
+            "winningBids.originalQuantity",
+            equalTo(bids.stream().map(b -> b.originalBid().getQuantity()).toList()),
+            "winningBids.price",
+            equalTo(bids.stream().map(b -> (float)b.originalBid().getPrice()).toList()),
+            "totalSoldQuantity", equalTo(summary.totalSoldQuantity()),
+            "totalRevenue", equalTo(summary.totalRevenue().floatValue()),
+            "closingTime", containsString("2022")
+        );
   }
 
 

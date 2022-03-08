@@ -26,6 +26,7 @@ public class TestData {
   private AuctionLot auctionUser1Apple;
   private AuctionLot auctionUser2MSFT;
   private AuctionLot auctionUser1FB;
+  private AuctionLot auctionUser1Tesla;
 
   private Bid bidOneUser2;
   private Bid bidTwoUser2;
@@ -49,6 +50,7 @@ public class TestData {
     auctionUser1Apple = createAuctionUser1(Stock.APPLE.symbol);
     auctionUser2MSFT = createAuctionUser2(Stock.MICROSOFT.symbol);
     auctionUser1FB = createAuctionUser1(Stock.META.symbol);
+    auctionUser1Tesla = createAuctionUser1("TESLA");
 
     bidOneUser2 = bidOneUser2();
     bidTwoUser2 = bidTwoUser2();
@@ -60,6 +62,15 @@ public class TestData {
     auctionUser1Apple.bid(bidThreeUser2);
     auctionUser1Apple.bid(bidFourUser3);
 
+    auctionUser1FB.bid(bidOneUser2);
+    auctionUser1FB.bid(bidTwoUser2);
+    auctionUser1FB.bid(bidThreeUser2);
+    auctionUser1FB.bid(bidFourUser3);
+
+    auctionUser1Tesla.bid(bidOneUser2);
+    auctionUser1Tesla.bid(bidTwoUser2);
+    auctionUser1Tesla.bid(bidThreeUser2);
+    auctionUser1Tesla.bid(bidFourUser3);
   }
 
   public User user1() {
@@ -95,14 +106,14 @@ public class TestData {
   }
 
   public Bid bidOneUser2(){
-    return new Bid(user2, 20, 4.2);
+    return new Bid(user2, 20, 9.9);
   }
   public Bid bidTwoUser2(){
-    return new Bid(user2, 30, 4.5);
+    return new Bid(user2, 30, 8.9);
   }
 
   public Bid bidThreeUser2(){
-    return new Bid(user2, 45, 5.9);
+    return new Bid(user2, 45, 7.9);
   }
 
   public Bid bidFourUser3(){
@@ -118,13 +129,17 @@ public class TestData {
   public AuctionLot auctionUser1FB(){
     return auctionUser1FB;
   }
+  public AuctionLot auctionUser1Tesla(){
+    return auctionUser1Tesla;
+  }
+
 
 
   public AuctionLot createAuctionUser1(String symbol){
     return auctionLotService.createAuction(
       user1.getUsername(),
       symbol,
-      200,
+      100,
       3.5);
   }
 
@@ -132,7 +147,7 @@ public class TestData {
     return auctionLotService.createAuction(
         user2.getUsername(),
         symbol,
-        150,
+        200,
         3.5);
   }
 

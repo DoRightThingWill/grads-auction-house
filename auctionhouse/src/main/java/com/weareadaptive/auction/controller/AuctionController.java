@@ -1,11 +1,11 @@
 package com.weareadaptive.auction.controller;
 
 import com.weareadaptive.auction.controller.dto.ResponseMapper;
-import com.weareadaptive.auction.controller.dto.response.AuctionResponse;
-import com.weareadaptive.auction.controller.dto.response.BidResponse;
-import com.weareadaptive.auction.controller.dto.response.BriefClosingSummary;
 import com.weareadaptive.auction.controller.dto.request.CreateAuctionRequest;
 import com.weareadaptive.auction.controller.dto.request.CreateBidRequest;
+import com.weareadaptive.auction.controller.dto.response.AuctionResponse;
+import com.weareadaptive.auction.controller.dto.response.BidResponse;
+import com.weareadaptive.auction.controller.dto.response.ClosingSummaryResponse;
 import com.weareadaptive.auction.controller.dto.response.WinningBidsResponse;
 import com.weareadaptive.auction.model.AuctionLot;
 import com.weareadaptive.auction.model.Bid;
@@ -41,12 +41,9 @@ public class AuctionController {
   AuctionResponse createAuction(@RequestBody @Valid CreateAuctionRequest request,
                                 Principal principal) {
     String username = principal.getName();
-    var createdAuction = auctionLotService.createAuction(
-        username,
-        request.symbol(),
-        request.quantity(),
-        request.minPrice()
-    );
+    var createdAuction =
+        auctionLotService.createAuction(username, request.symbol(), request.quantity(),
+            request.minPrice());
 
     return new AuctionResponse(createdAuction);
   }
@@ -60,10 +57,7 @@ public class AuctionController {
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
   public List<AuctionResponse> getAllAuctions() {
-    return auctionLotService.getAllAuctions()
-        .stream()
-        .map(AuctionResponse::new)
-        .toList();
+    return auctionLotService.getAllAuctions().stream().map(AuctionResponse::new).toList();
   }
 
   @PostMapping("/{id}/bid")
@@ -71,12 +65,8 @@ public class AuctionController {
   public BidResponse bidOnAuction(@RequestBody @Valid CreateBidRequest request,
                                   @PathVariable int id) {
 
-    Bid createdBid = auctionLotService.bidOnAuction(
-        id,
-        request.owner(),
-        request.quantity(),
-        request.price()
-    );
+    Bid createdBid =
+        auctionLotService.bidOnAuction(id, request.owner(), request.quantity(), request.price());
     return ResponseMapper.bidResponse(createdBid);
   }
 
@@ -84,19 +74,16 @@ public class AuctionController {
   @ResponseStatus(HttpStatus.OK)
   public List<BidResponse> getAllBidsForAnAuctions(@PathVariable int id, Principal principal) {
 
-    return auctionLotService.getAllBidsFromAuction(principal, id)
-        .stream()
-        .map(ResponseMapper::bidResponse)
-        .toList();
+    return auctionLotService.getAllBidsFromAuction(principal, id).stream()
+        .map(ResponseMapper::bidResponse).toList();
   }
 
   @GetMapping("/{id}/close")
   @ResponseStatus(HttpStatus.OK)
-  public BriefClosingSummary closeAuction(@PathVariable int id, Principal principal) {
-    String username = principal.getName();
-    AuctionLot targetAuction = auctionLotService.getAuctionById(id);
-    targetAuction.close(username);
-    return new BriefClosingSummary(targetAuction.getClosingSummary());
+  public ClosingSummaryResponse closeAuction(@PathVariable int id, Principal principal) {
+
+    AuctionLot closedAuction = auctionLotService.closeAuction(principal, id);
+    return ResponseMapper.closingSummaryResponse(closedAuction.getClosingSummary());
   }
 
 
@@ -105,9 +92,12 @@ public class AuctionController {
   public List<WinningBidsResponse> getWinningBids(@PathVariable int id, Principal principal) {
     String username = principal.getName();
     var winningBids = auctionLotService.getWinningBids(id, username);
-    return winningBids
-        .stream()
-        .map(WinningBidsResponse::new)
-        .toList();
+    return winningBids.stream().map(WinningBidsResponse::new).toList();
+  }
+
+  @GetMapping("/{id}/close-summary")
+  @ResponseStatus(HttpStatus.OK)
+  public ClosingSummaryResponse getCloseSummary(@PathVariable int id, Principal principal) {
+    return ResponseMapper.closingSummaryResponse(auctionLotService.getClosSummary(principal, id));
   }
 }

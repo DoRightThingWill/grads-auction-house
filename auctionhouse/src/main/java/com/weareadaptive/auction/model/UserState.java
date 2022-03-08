@@ -1,6 +1,5 @@
 package com.weareadaptive.auction.model;
 
-import static java.lang.String.format;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.groupingBy;
 
@@ -25,7 +24,7 @@ public class UserState extends State<User> {
     usernameIndex.put(model.getUsername(), model);
   }
 
-  public boolean hasUser(String username){
+  public boolean hasUser(String username) {
     return usernameIndex.containsKey(username);
   }
 
@@ -64,8 +63,8 @@ public class UserState extends State<User> {
         .toList();
   }
 
-  public Optional<User> getUserByID (int id){
-    return getModelByID(id);
+  public Optional<User> getUserById(int id) {
+    return getModelById(id);
   }
 
 }

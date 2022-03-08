@@ -34,8 +34,8 @@ public class State<T extends Entity> {
     this.currentId = id;
   }
 
-  public Optional<T> getModelByID(int id) {
-    if(entities.containsKey(id)){
+  public Optional<T> getModelById(int id) {
+    if (entities.containsKey(id)) {
       return Optional.of(entities.get(id));
     } else {
       return Optional.empty();
@@ -45,7 +45,6 @@ public class State<T extends Entity> {
   public Stream<T> stream() {
     return entities.values().stream();
   }
-
 
 
 }

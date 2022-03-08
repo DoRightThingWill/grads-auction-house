@@ -60,7 +60,8 @@ public class Bid {
     }
 
     if (quantity < winQuantity) {
-      throw new KeyAlreadyExistsException("winQuantity must be lower or equal to to the bid quantity");
+      throw new KeyAlreadyExistsException(
+          "winQuantity must be lower or equal to to the bid quantity");
     }
 
     state = State.WIN;
@@ -70,10 +71,10 @@ public class Bid {
   @Override
   public String toString() {
     return "Bid{"
-      + "user=" + user
-      + ", price=" + price
-      + ", quantity=" + quantity
-      + '}';
+        + "user=" + user
+        + ", price=" + price
+        + ", quantity=" + quantity
+        + '}';
   }
 
   public enum State {
