@@ -6,7 +6,6 @@ import com.weareadaptive.auction.controller.dto.request.CreateBidRequest;
 import com.weareadaptive.auction.controller.dto.response.AuctionResponse;
 import com.weareadaptive.auction.controller.dto.response.BidResponse;
 import com.weareadaptive.auction.controller.dto.response.ClosingSummaryResponse;
-import com.weareadaptive.auction.controller.dto.response.WinningBidsResponse;
 import com.weareadaptive.auction.model.AuctionLot;
 import com.weareadaptive.auction.model.Bid;
 import com.weareadaptive.auction.service.AuctionLotService;
@@ -44,19 +43,20 @@ public class AuctionController {
         auctionLotService.createAuction(principal.getName(), request.symbol(), request.quantity(),
             request.minPrice());
 
-    return new AuctionResponse(createdAuction);
+    return ResponseMapper.auctionResponse(createdAuction);
   }
 
   @GetMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
   AuctionResponse getAuctionById(@PathVariable int id) {
-    return new AuctionResponse(auctionLotService.getAuctionById(id));
+    return ResponseMapper.auctionResponse(auctionLotService.getAuctionById(id));
   }
 
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
   public List<AuctionResponse> getAllAuctions() {
-    return auctionLotService.getAllAuctions().stream().map(AuctionResponse::new).toList();
+    return auctionLotService.getAllAuctions().stream().map(ResponseMapper::auctionResponse)
+        .toList();
   }
 
   @PostMapping("/{id}/bid")
@@ -85,14 +85,6 @@ public class AuctionController {
     return ResponseMapper.closingSummaryResponse(closedAuction.getClosingSummary());
   }
 
-
-  @GetMapping("/{id}/winning-bids")
-  @ResponseStatus(HttpStatus.OK)
-  public List<WinningBidsResponse> getWinningBids(@PathVariable int id, Principal principal) {
-
-    return auctionLotService.getWinningBids(id, principal.getName()).stream()
-        .map(ResponseMapper::winningBidsResponse).toList();
-  }
 
   @GetMapping("/{id}/close-summary")
   @ResponseStatus(HttpStatus.OK)

@@ -6,8 +6,6 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 import com.weareadaptive.auction.TestData;
@@ -18,10 +16,7 @@ import com.weareadaptive.auction.model.Bid;
 import com.weareadaptive.auction.model.ClosingSummary;
 import com.weareadaptive.auction.model.WinningBid;
 import io.restassured.http.ContentType;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -47,63 +42,25 @@ class AuctionControllerTest {
   @DisplayName("create should create and return the new auction")
   @Test
   public void shouldReturnAuctionIfCreated() {
-    var createAuctionRequest = new CreateAuctionRequest(
-        "ADAPT",
-        2.23,
-        200
-    );
+    var createAuctionRequest = new CreateAuctionRequest("ADAPT", 2.23, 200);
 
-    given()
-        .baseUri(uri)
-        .header(AUTHORIZATION, testData.user1Token())
-        .contentType(ContentType.JSON)
-        .body(createAuctionRequest)
-        .when()
-        .post("/auctions")
-        .then()
-        .statusCode(HttpStatus.CREATED.value())
-        .body("id", greaterThan(0))
+    given().baseUri(uri).header(AUTHORIZATION, testData.user1Token()).contentType(ContentType.JSON)
+        .body(createAuctionRequest).when().post("/auctions").then()
+        .statusCode(HttpStatus.CREATED.value()).body("id", greaterThan(0))
         .body("owner", equalTo(testData.user1().getUsername()))
         .body("symbol", equalTo(createAuctionRequest.symbol()))
         .body("minPrice", equalTo((float) createAuctionRequest.minPrice()))
         .body("quantity", equalTo(createAuctionRequest.quantity()));
   }
 
-  @DisplayName("create should return a bad request when the symbol is duplicated")
-  @Test
-  public void create_shouldReturnBadRequestIfSymbolExist() {
-    var createAuctionRequest = new CreateAuctionRequest(
-        testData.auctionUser1Apple().getSymbol(),
-        2.23,
-        200
-    );
-
-    given()
-        .baseUri(uri)
-        .header(AUTHORIZATION, testData.user1Token())
-        .contentType(ContentType.JSON)
-        .body(createAuctionRequest)
-        .when()
-        .post("/auctions")
-        .then()
-        .statusCode(BAD_REQUEST.value())
-        .body("message", containsString("already exist"));
-
-  }
 
   @DisplayName("return an auction by id")
   @Test
   public void returnAuctionGetByID() {
     AuctionLot auctionApple = testData.auctionUser1Apple();
-    given()
-        .baseUri(uri)
-        .header(AUTHORIZATION, testData.user1Token())
-        .pathParam("id", auctionApple.getId())
-        .when()
-        .get("/auctions/{id}")
-        .then()
-        .statusCode(HttpStatus.OK.value())
-        .body("id", equalTo(testData.auctionUser1Apple().getId()))
+    given().baseUri(uri).header(AUTHORIZATION, testData.user1Token())
+        .pathParam("id", auctionApple.getId()).when().get("/auctions/{id}").then()
+        .statusCode(HttpStatus.OK.value()).body("id", equalTo(testData.auctionUser1Apple().getId()))
         .body("symbol", equalTo(testData.auctionUser1Apple().getSymbol()))
         .body("owner", equalTo(testData.auctionUser1Apple().getOwner().getUsername()))
         .body("quantity", equalTo(testData.auctionUser1Apple().getQuantity()))
@@ -115,13 +72,8 @@ class AuctionControllerTest {
   @DisplayName("get auction return bad request if ID not exist")
   @Test
   public void returnBadRequestIfAuctionIDNotExists() {
-    given()
-        .baseUri(uri)
-        .header(AUTHORIZATION, testData.user1Token())
-        .pathParam("id", INVALID_AUCTION_ID)
-        .when()
-        .get("/auctions/{id}")
-        .then()
+    given().baseUri(uri).header(AUTHORIZATION, testData.user1Token())
+        .pathParam("id", INVALID_AUCTION_ID).when().get("/auctions/{id}").then()
         .statusCode(HttpStatus.NOT_FOUND.value());
   }
 
@@ -133,12 +85,7 @@ class AuctionControllerTest {
     var found2 = format("find { it.id == %s }.", testData.auctionUser2MSFT().getId());
     var found3 = format("find { it.id == %s }.", testData.auctionUser1FB().getId());
 
-    given()
-        .baseUri(uri)
-        .header(AUTHORIZATION, testData.user1Token())
-        .when()
-        .get("/auctions")
-        .then()
+    given().baseUri(uri).header(AUTHORIZATION, testData.user1Token()).when().get("/auctions").then()
         .statusCode(HttpStatus.OK.value())
         // body ( assertAll( ... ))
         // validate auction one
@@ -165,23 +112,12 @@ class AuctionControllerTest {
   @DisplayName("return bid information when successfully bid an auctions")
   @Test
   public void returnBidWhenBidAnAuctions() {
-    var createBidRequest = new CreateBidRequest(
-        testData.user2().getUsername(),
-        50,
-        5.9
-    );
+    var createBidRequest = new CreateBidRequest(testData.user2().getUsername(), 50, 5.9);
 
-    given()
-        .baseUri(uri)
-        .header(AUTHORIZATION, testData.user2Token())
-        .pathParam("id", testData.auctionUser1FB().getId())
-        .contentType(ContentType.JSON)
-        .body(createBidRequest)
-        .when()
-        .post("/auctions/{id}/bid")
-        .then()
-        .statusCode(HttpStatus.CREATED.value())
-        .body("owner", equalTo(createBidRequest.owner()))
+    given().baseUri(uri).header(AUTHORIZATION, testData.user2Token())
+        .pathParam("id", testData.auctionUser1FB().getId()).contentType(ContentType.JSON)
+        .body(createBidRequest).when().post("/auctions/{id}/bid").then()
+        .statusCode(HttpStatus.CREATED.value()).body("owner", equalTo(createBidRequest.owner()))
         .body("quantity", equalTo(createBidRequest.quantity()))
         .body("price", equalTo((float) createBidRequest.price()))
         .body("state", equalTo(Bid.State.PENDING.toString()));
@@ -191,21 +127,11 @@ class AuctionControllerTest {
   @DisplayName("return bad request when bid on same owner auction")
   @Test
   public void returnBadRequestWhenBidOnOwnAuction() {
-    var createBidRequest = new CreateBidRequest(
-        testData.user1().getUsername(),
-        50,
-        5.1
-    );
+    var createBidRequest = new CreateBidRequest(testData.user1().getUsername(), 50, 5.1);
 
-    given()
-        .baseUri(uri)
-        .header(AUTHORIZATION, testData.user1Token())
-        .pathParam("id", testData.auctionUser1Apple().getId())
-        .contentType(ContentType.JSON)
-        .body(createBidRequest)
-        .when()
-        .post("/auctions/{id}/bid")
-        .then()
+    given().baseUri(uri).header(AUTHORIZATION, testData.user1Token())
+        .pathParam("id", testData.auctionUser1Apple().getId()).contentType(ContentType.JSON)
+        .body(createBidRequest).when().post("/auctions/{id}/bid").then()
         .statusCode(UNAUTHORIZED.value());
   }
 
@@ -214,22 +140,11 @@ class AuctionControllerTest {
   @DisplayName("return 404 NOT-Found when trying to bid auction but can not find the auction")
   @Test
   public void return404WhenBiddingButAuctionNotFound() {
-    var createBidRequest = new CreateBidRequest(
-        testData.user2().getUsername(),
-        50,
-        2.3
-    );
+    var createBidRequest = new CreateBidRequest(testData.user2().getUsername(), 50, 2.3);
 
-    given()
-        .baseUri(uri)
-        .header(AUTHORIZATION, testData.user2Token())
-        .pathParam("id", INVALID_AUCTION_ID)
-        .contentType(ContentType.JSON)
-        .body(createBidRequest)
-        .when()
-        .post("/auctions/{id}/bid")
-        .then()
-        .statusCode(HttpStatus.NOT_FOUND.value());
+    given().baseUri(uri).header(AUTHORIZATION, testData.user2Token())
+        .pathParam("id", INVALID_AUCTION_ID).contentType(ContentType.JSON).body(createBidRequest)
+        .when().post("/auctions/{id}/bid").then().statusCode(HttpStatus.NOT_FOUND.value());
   }
 
   @DisplayName("get all bids for an auctions for this user")
@@ -238,20 +153,13 @@ class AuctionControllerTest {
 
     List<Bid> bids = testData.auctionUser1Apple().getBids();
 
-    given()
-        .baseUri(uri)
-        .header(AUTHORIZATION, testData.user1Token())
-        .pathParam("id", testData.auctionUser1Apple().getId())
-        .when()
-        .get("/auctions/{id}/bids")
-        .then()
-        .statusCode(HttpStatus.OK.value())
-        .body(
-            "owner", equalTo(bids.stream().map(b -> b.getUser().getUsername()).toList()),
-            "quantity", equalTo(bids.stream().map(Bid::getQuantity).toList()),
-            "price", equalTo(bids.stream().map(b -> (float) b.getPrice()).toList()),
-            "state", equalTo(bids.stream().map(b -> b.getState().toString()).toList())
-        );
+    given().baseUri(uri).header(AUTHORIZATION, testData.user1Token())
+        .pathParam("id", testData.auctionUser1Apple().getId()).when().get("/auctions/{id}/bids")
+        .then().statusCode(HttpStatus.OK.value())
+        .body("owner", equalTo(bids.stream().map(b -> b.getUser().getUsername()).toList()),
+            "quantity", equalTo(bids.stream().map(Bid::getQuantity).toList()), "price",
+            equalTo(bids.stream().map(b -> (float) b.getPrice()).toList()), "state",
+            equalTo(bids.stream().map(b -> b.getState().toString()).toList()));
   }
 
   @DisplayName("return closing summary when close an auction")
@@ -261,115 +169,45 @@ class AuctionControllerTest {
     List<WinningBid> bids = testData.auctionUser1FB().getClosingSummary().winningBids();
     ClosingSummary summary = testData.auctionUser1FB().getClosingSummary();
 
-    given()
-        .baseUri(uri)
-        .header(AUTHORIZATION, testData.user1Token())
-        .pathParam("id", testData.auctionUser1Apple().getId())
-        .when()
-        .get("/auctions/{id}/close")
-        .then()
-        .statusCode(HttpStatus.OK.value())
-        .body(
-            "winningBids.settledQuantity",
+    given().baseUri(uri).header(AUTHORIZATION, testData.user1Token())
+        .pathParam("id", testData.auctionUser1Apple().getId()).when().get("/auctions/{id}/close")
+        .then().statusCode(HttpStatus.OK.value()).body("winningBids.settledQuantity",
             equalTo(bids.stream().map(b -> b.originalBid().getWinQuantity()).toList()),
             "winningBids.originalQuantity",
             equalTo(bids.stream().map(b -> b.originalBid().getQuantity()).toList()),
             "winningBids.price",
-            equalTo(bids.stream().map(b -> (float)b.originalBid().getPrice()).toList()),
-            "totalSoldQuantity", equalTo(summary.totalSoldQuantity()),
-            "totalRevenue", equalTo(summary.totalRevenue().floatValue()),
-            "closingTime", containsString("2022")
-        );
+            equalTo(bids.stream().map(b -> (float) b.originalBid().getPrice()).toList()),
+            "totalSoldQuantity", equalTo(summary.totalSoldQuantity()), "totalRevenue",
+            equalTo(summary.totalRevenue().floatValue()), "closingTime", containsString("2022"));
   }
 
   @DisplayName("return not authorized when close auction not belonging to user")
   @Test
   public void returnBadRequestOnceCloseOthersAuction() {
-    given()
-        .baseUri(uri)
-        .header(AUTHORIZATION, testData.user2Token())
-        .pathParam("id", testData.auctionUser1Apple().getId())
-        .when()
-        .get("/auctions/{id}/close")
-        .then()
-        .statusCode(UNAUTHORIZED.value())
-    ;
+    given().baseUri(uri).header(AUTHORIZATION, testData.user2Token())
+        .pathParam("id", testData.auctionUser1Apple().getId()).when().get("/auctions/{id}/close")
+        .then().statusCode(UNAUTHORIZED.value());
   }
 
-  @DisplayName("get winning bids from a close auction")
-  @Test
-  public void returnWinningBidsListFromClosedAuction() {
-
-
-    Bid bid1User1 = new Bid(testData.user1(), 20, 15);
-    Bid bid2User1 = new Bid(testData.user1(), 10, 5);
-    Bid bid3User1 = new Bid(testData.user1(), 15, 30);
-    Bid bid1User3 = new Bid(testData.user3(), 3, 20);
-
-    testData.auctionUser2MSFT().bid(bid1User1);
-    testData.auctionUser2MSFT().bid(bid2User1);
-    testData.auctionUser2MSFT().bid(bid3User1);
-    testData.auctionUser2MSFT().bid(bid1User3);
-
-    testData.auctionUser2MSFT().close();
-
-    Map<String, List<Object>> expectedResult = new HashMap<>();
-    expectedResult.put("settledQuantity", new ArrayList<>());
-    expectedResult.put("username", new ArrayList<>());
-    expectedResult.put("originalQuantity", new ArrayList<>());
-    expectedResult.put("price", new ArrayList<>());
-
-
-    testData.auctionUser2MSFT().getClosingSummary().winningBids()
-        .forEach(winningBid -> {
-          expectedResult.get("settledQuantity").add(winningBid.originalBid().getWinQuantity());
-          expectedResult.get("username").add(winningBid.originalBid().getUser().getUsername());
-          expectedResult.get("originalQuantity").add(winningBid.originalBid().getQuantity());
-          expectedResult.get("price").add((float) winningBid.originalBid().getPrice());
-        });
-
-    given()
-        .baseUri(uri)
-        .header(AUTHORIZATION, testData.user2Token())
-        .pathParam("id", testData.auctionUser2MSFT().getId())
-        .when()
-        .get("/auctions/{id}/winning-bids")
-        .then()
-        .statusCode(OK.value())
-        .body(
-            "settledQuantity", equalTo(expectedResult.get("settledQuantity")),
-            "username", equalTo(expectedResult.get("username")),
-            "originalQuantity", equalTo(expectedResult.get("originalQuantity")),
-            "price", equalTo(expectedResult.get("price"))
-        );
-  }
 
   @DisplayName("get close summary from a closed auction")
   @Test
-  public void returnClosingSummaryResponseFromClosedAuction(){
+  public void returnClosingSummaryResponseFromClosedAuction() {
     testData.auctionUser1Tesla().close();
     ClosingSummary summary = testData.auctionUser1Tesla().getClosingSummary();
     List<WinningBid> bids = summary.winningBids();
 
-    given()
-        .baseUri(uri)
-        .header(AUTHORIZATION, testData.user1Token())
-        .pathParam("id", testData.auctionUser1Tesla().getId())
-        .when()
-        .get("/auctions/{id}/close-summary")
-        .then()
-        .statusCode(HttpStatus.OK.value())
-        .body(
-            "winningBids.settledQuantity",
+    given().baseUri(uri).header(AUTHORIZATION, testData.user1Token())
+        .pathParam("id", testData.auctionUser1Tesla().getId()).when()
+        .get("/auctions/{id}/close-summary").then().statusCode(HttpStatus.OK.value())
+        .body("winningBids.settledQuantity",
             equalTo(bids.stream().map(b -> b.originalBid().getWinQuantity()).toList()),
             "winningBids.originalQuantity",
             equalTo(bids.stream().map(b -> b.originalBid().getQuantity()).toList()),
             "winningBids.price",
-            equalTo(bids.stream().map(b -> (float)b.originalBid().getPrice()).toList()),
-            "totalSoldQuantity", equalTo(summary.totalSoldQuantity()),
-            "totalRevenue", equalTo(summary.totalRevenue().floatValue()),
-            "closingTime", containsString("2022")
-        );
+            equalTo(bids.stream().map(b -> (float) b.originalBid().getPrice()).toList()),
+            "totalSoldQuantity", equalTo(summary.totalSoldQuantity()), "totalRevenue",
+            equalTo(summary.totalRevenue().floatValue()), "closingTime", containsString("2022"));
   }
 
 
