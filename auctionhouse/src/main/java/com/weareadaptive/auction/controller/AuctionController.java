@@ -5,6 +5,7 @@ import com.weareadaptive.auction.controller.dto.BidResponse;
 import com.weareadaptive.auction.controller.dto.BriefClosingSummary;
 import com.weareadaptive.auction.controller.dto.CreateAuctionRequest;
 import com.weareadaptive.auction.controller.dto.CreateBidRequest;
+import com.weareadaptive.auction.controller.dto.WinningBidsResponse;
 import com.weareadaptive.auction.model.AuctionLot;
 import com.weareadaptive.auction.model.Bid;
 import com.weareadaptive.auction.service.AuctionLotService;
@@ -96,5 +97,18 @@ public class AuctionController {
     targetAuction.close(username);
     return new BriefClosingSummary(targetAuction.getClosingSummary());
   }
+
+
+  @GetMapping("/{id}/winning-bids")
+  @ResponseStatus(HttpStatus.OK)
+  public List<WinningBidsResponse> getWinningBids(@PathVariable int id, Principal principal) {
+    String username = principal.getName();
+    var winningBids = auctionLotService.getWinningBids(id, username);
+    return winningBids
+        .stream()
+        .map(WinningBidsResponse::new)
+        .toList();
+  }
+
 
 }

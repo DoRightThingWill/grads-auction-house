@@ -98,10 +98,14 @@ public class AuctionLot implements Entity {
   }
 
   public void close(String username) {
-
     if (!owner.getUsername().equals(username)) {
       throw new BidOthersAuction("Can not close auction belonging to others");
     }
+
+    close();
+  }
+
+  public void close() {
 
     if (status == Status.CLOSED) {
       throw new KeyAlreadyExistsException("Cannot close because already closed.");

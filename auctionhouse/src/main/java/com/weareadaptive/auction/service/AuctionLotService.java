@@ -9,6 +9,7 @@ import com.weareadaptive.auction.model.BusinessException;
 import com.weareadaptive.auction.model.KeyAlreadyExistsException;
 import com.weareadaptive.auction.model.User;
 import com.weareadaptive.auction.model.UserState;
+import com.weareadaptive.auction.model.WinningBid;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
@@ -65,6 +66,16 @@ public record AuctionLotService(AuctionState auctionState, UserState userState) 
     Bid newBid = new Bid(bidder, quantity, price);
     currentAuction.bid(newBid);
     return newBid;
+  }
+
+  public List<WinningBid> getWinningBids(int id, String username) {
+    var targetAuction = getAuctionById(id);
+
+    if (!targetAuction.getOwner().getUsername().equals(username)) {
+      throw new BusinessException("can not get winning bids of auction not belonging to you");
+    }
+
+    return targetAuction.getClosingSummary().winningBids();
   }
 
 }

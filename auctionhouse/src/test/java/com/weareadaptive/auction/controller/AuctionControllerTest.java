@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.OK;
 
 import com.weareadaptive.auction.TestData;
 import com.weareadaptive.auction.controller.dto.CreateAuctionRequest;
@@ -14,7 +15,10 @@ import com.weareadaptive.auction.controller.dto.CreateBidRequest;
 import com.weareadaptive.auction.model.AuctionLot;
 import com.weareadaptive.auction.model.Bid;
 import io.restassured.http.ContentType;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -293,6 +297,55 @@ class AuctionControllerTest {
         .then()
         .statusCode(BAD_REQUEST.value())
         ;
+  }
+
+  @DisplayName("get winning bids from a close auction")
+  @Test
+  public void returnWinningBidsListFromClosedAuction(){
+
+
+    Bid bid1User1 = new Bid(testData.user1(), 20, 15);
+    Bid bid2User1 = new Bid(testData.user1(), 10, 5);
+    Bid bid3User1 = new Bid(testData.user1(), 15, 30);
+    Bid bid1User3 = new Bid(testData.user3(), 3, 20);
+
+    testData.auctionUser2MSFT().bid(bid1User1);
+    testData.auctionUser2MSFT().bid(bid2User1);
+    testData.auctionUser2MSFT().bid(bid3User1);
+    testData.auctionUser2MSFT().bid(bid1User3);
+
+    testData.auctionUser2MSFT().close();
+
+    Map<String, List<Object>> expectedResult = new HashMap<>();
+    expectedResult.put("settledQuantity", new ArrayList<>());
+    expectedResult.put("username", new ArrayList<>());
+    expectedResult.put("originalQuantity", new ArrayList<>());
+    expectedResult.put("price", new ArrayList<>());
+
+
+    testData.auctionUser2MSFT().getClosingSummary().winningBids()
+                .forEach(winningBid -> {
+                  expectedResult.get("settledQuantity").add(winningBid.originalBid().getWinQuantity());
+                  expectedResult.get("username").add(winningBid.originalBid().getUser().getUsername());
+                  expectedResult.get("originalQuantity").add(winningBid.originalBid().getQuantity());
+                  expectedResult.get("price").add((float)winningBid.originalBid().getPrice());
+                });
+
+    given()
+        .baseUri(uri)
+        .header(AUTHORIZATION, testData.user2Token())
+        .pathParam("id", testData.auctionUser2MSFT().getId())
+        .when()
+        .get("/auctions/{id}/winning-bids")
+        .then()
+        .statusCode(OK.value())
+        .body(
+            "settledQuantity", equalTo(expectedResult.get("settledQuantity")),
+            "username", equalTo(expectedResult.get("username")),
+            "originalQuantity", equalTo(expectedResult.get("originalQuantity")),
+            "price", equalTo(expectedResult.get("price"))
+            )
+    ;
   }
 
 
